@@ -1,0 +1,40 @@
+{
+  "name": "botbuilder-spellcheck",
+  "version": "4.0.0",
+  "description": "Middleware for Microsoft Bot Framework to manage handling of user typos in chat",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register \"test/**/*.{ts,tsx}\"",
+    "pretest": "npm run build"
+  },
+  "publishConfig": {
+    "tag": "preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Azure/botbuilder-utils-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure/botbuilder-utils-js/issues"
+  },
+  "keywords": [
+    "botbuilder",
+    "botframework",
+    "bots",
+    "chatbots",
+    "spellcheck"
+  ],
+  "author": "Microsoft Corp.",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.0",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  }
+}
