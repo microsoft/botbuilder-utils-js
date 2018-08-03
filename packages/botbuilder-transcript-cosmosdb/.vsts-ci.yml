@@ -29,14 +29,11 @@ steps:
       mergeTestResults: true
     condition: succeededOrFailed()
 
-  # SEMANTIC RELEASE
-  - script: npx semantic-release
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
   # PUBLISH NPM
-  # - task: Npm@1
-  #   inputs:
-  #     workingDir: '$(PackageDirectory)'
-  #     command: publish
-  #     publishEndpoint: chstone
-  #   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  - task: Npm@1
+    inputs:
+      command: publish
+      workingDir: '$(Build.StagingDirectory)'
+      publishRegistry: useFeed
+      publishFeed: '115d3c38-cd52-41d6-8fda-16dd326a56c9'
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
