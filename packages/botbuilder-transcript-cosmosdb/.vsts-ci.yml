@@ -33,7 +33,7 @@ steps:
   - task: Npm@1
     inputs:
       command: publish
-      workingDir: '$(Build.StagingDirectory)'
+      workingDir: '$(PackageDirectory)'
       publishRegistry: useFeed
       publishFeed: '115d3c38-cd52-41d6-8fda-16dd326a56c9'
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
