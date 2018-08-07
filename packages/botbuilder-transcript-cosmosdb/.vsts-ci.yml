@@ -1,4 +1,8 @@
 queue: 'Hosted VS2017'
+trigger:
+  paths:
+    include:
+      - 'packages/botbuilder-transcript-cosmosdb'
 steps:
 
   # INSTALL
