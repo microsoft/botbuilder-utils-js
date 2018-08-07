@@ -24,6 +24,12 @@ export interface AppInsightsTranscriptStoreOptions {
 export class AppInsightsTranscriptStore implements TranscriptStore {
   private transcriptIdCache = new Set<string>();
 
+  /**
+   * Create the store
+   * @param client AppInsights telemetry client
+   * @param options Options for the transcript store
+   * @param readClient Override the AppInsights event query client
+   */
   constructor(private client: TelemetryClient, private options: AppInsightsTranscriptStoreOptions, private readClient?: AppInsightsEventClient) {
     this.readClient = readClient || new AppInsightsEventClient(this.options.applicationId, options.readKey || client.config.instrumentationKey);
   }
