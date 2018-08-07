@@ -1,5 +1,5 @@
 {
-  "name": "botbuilder-transcript-app-insights",
+  "name": "@botbuilder-utils/botbuilder-transcript-app-insights",
   "version": "4.0.0",
   "description": "Plugin to store Microsoft Bot Framework transcript activities in AppInsights",
   "main": "dist/index.js",
@@ -10,7 +10,8 @@
     "pretest": "npm run build"
   },
   "publishConfig": {
-    "tag": "preview"
+    "tag": "preview",
+    "repository": "https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/"
   },
   "repository": {
     "type": "git",
@@ -33,10 +34,25 @@
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
+    "@types/sinon": "^5.0.1",
+    "@types/superagent": "^3.8.3",
+    "applicationinsights": "^1.0.3",
+    "botbuilder-core-extensions": "^4.0.0-preview1.2",
+    "botframework-schema": "^4.0.0-preview1.2",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
+    "sinon": "^6.1.4",
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
+    
+  },
+  "peerDependencies": {
+    "applicationinsights": "^1.0.3",
+    "botbuilder-core-extensions": "^4.0.0-preview1.2",
+    "botframework-schema": "^4.0.0-preview1.2"
+  },
+  "dependencies": {
+    "superagent": "^3.8.3"
   }
 }
