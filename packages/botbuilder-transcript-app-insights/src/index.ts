@@ -2,41 +2,72 @@
 // Licensed under the MIT License.
 
 import { TelemetryClient } from 'applicationinsights';
-import { PagedResult, Transcript, TranscriptStore } from 'botbuilder-core-extensions';
+import { PagedResult, Transcript, TranscriptStore } from 'botbuilder-core';
 import { Activity } from 'botframework-schema';
 
-import { AppInsightsEventClient } from './app-insights';
+import { AppInsightsReadClient } from './app-insights';
 import { deserialize, serialize, serializeMetadata } from './serializer';
 
 export interface AppInsightsTranscriptStoreOptions {
   /**
-   * AppInsights application id
+   * API Access application id
    */
   applicationId: string;
 
   /**
-   * Optional key to read from the AppInsights store
-   *  when the provided TelemetryClient does not use an instrumentation key with read privileges
+   * API Access key with 'Read telemetry' permissions
    */
-  readKey?: string;
+  readKey: string;
 }
+
+/**
+ * Some clients (emulator) might send timestamp as a string
+ * @param activity bot activity
+ */
+const getTimestamp = (activity: Activity): Date => {
+  const ts: Date | string = activity.timestamp;
+  if (typeof ts === 'string') {
+    return new Date(ts);
+  } else if (!ts) {
+    return new Date();
+  } else {
+    return ts;
+  }
+};
+
+const qTranscriptActivities = (channelId: string, conversationId: string, startDate: Date) => `
+  customEvents
+    | where customDimensions.channelId == '${channelId}'
+      and customDimensions.$conversationId == '${conversationId}'
+      ${startDate ? `and customDimensions.$timestamp ge '${startDate.toISOString()}'` : ''}`;
+
+const qListTranscripts = (channelId: string) => `
+  customEvents
+    | where customDimensions.channelId == '${channelId}'
+      and customDimensions.$start == 'true'
+    | project channelId=customDimensions.channelId
+        , id=customDimensions.$conversationId
+        , created=customDimensions.$timestamp`;
 
 export class AppInsightsTranscriptStore implements TranscriptStore {
   private transcriptIdCache = new Set<string>();
+  private readClient: AppInsightsReadClient;
 
   /**
-   * Create the store
-   * @param client AppInsights telemetry client
-   * @param options Options for the transcript store
-   * @param readClient Override the AppInsights event query client
+   * Create a new Application Insights transcript store for use in a Bot Framework bot
+   * @param client Application Insights telemetry client
+   * @param readOptions Configure transcript store for reading (only if using `getTranscriptActivities` and `listTranscripts` functions)
    */
-  constructor(private client: TelemetryClient, private options: AppInsightsTranscriptStoreOptions, private readClient?: AppInsightsEventClient) {
-    this.readClient = readClient || new AppInsightsEventClient(this.options.applicationId, options.readKey || client.config.instrumentationKey);
+  constructor(private client: TelemetryClient, private readOptions?: AppInsightsTranscriptStoreOptions) {
+    if (this.readOptions) {
+      this.readClient = new AppInsightsReadClient(this.readOptions.applicationId, readOptions.readKey);
+    }
   }
 
   logActivity(activity: Activity): Promise<void> {
     const properties = serialize(activity);
     const transcriptId = activity.channelId + activity.conversation.id;
+    const timestamp = getTimestamp(activity);
 
     // select non-string/deep properties are copied to top level so that they can be queried
     //   these properties should be deleted from the returned object at query time
@@ -44,7 +75,7 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
       conversationId: activity.conversation.id,
       fromId: activity.from.id,
       recipientId: activity.recipient.id,
-      timestamp: activity.timestamp.toISOString(),
+      timestamp: timestamp.toISOString(),
       start: (!this.transcriptIdCache.has(transcriptId)).toString(),
     });
 
@@ -54,16 +85,10 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
   }
 
   async getTranscriptActivities(channelId: string, conversationId: string, continuationToken?: string, startDate?: Date): Promise<PagedResult<Activity>> {
-    const filters = [
-      `channelId eq '${channelId}'`,
-      `$conversationId eq '${conversationId}'`,
-    ];
-    if (startDate) {
-      filters.push(`$timestamp ge '${startDate.toISOString()}'`);
-    }
-    const $filter = filters.join(' and ');
-    const resp = await this.readClient.customEvents({ $filter });
-    const activities = resp.values.map((x) => deserialize<Activity>(x));
+    this.throwIfNoReader();
+    const query = qTranscriptActivities(channelId, conversationId, startDate);
+    const resp = await this.readClient.query(query);
+    const activities = resp.map((x) => deserialize<Activity>(x.customDimensions));
     return {
       items: activities,
       continuationToken: undefined,
@@ -71,32 +96,29 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
   }
 
   async listTranscripts(channelId: string, continuationToken?: string): Promise<PagedResult<Transcript>> {
-    const $filter = [
-      `channelId eq '${channelId}'`,
-      `$start eq 'true'`,
-    ].join(' and ');
-    const $select = 'channelId,$conversationId,$timestamp';
-    const resp = await this.readClient.customEvents({ $filter, $select });
-    const activities = resp.values.map((x) => deserialize<Activity>(x));
+    this.throwIfNoReader();
+    const query = qListTranscripts(channelId);
+    const resp = await this.readClient.query(query);
+    const transcripts = resp.map((x) => deserialize<Transcript>(x));
 
     // due to concurrency, a transcript may have duplicate records
     // use a Map to limit each transcript to a single (earliest by date) output record
-    const transcripts = new Map<string, Transcript>();
-    for (const activity of activities) {
-      const id = activity.channelId + activity.conversation.id;
+    const transcriptStarts = new Map<string, Transcript>();
+    for (const transcript of transcripts) {
+      const key = transcript.channelId + transcript.id;
 
       // add the transcript to output
-      if (!transcripts.has(id) || activity.timestamp < transcripts.get(id).created) {
-        transcripts.set(id, {
-          channelId: activity.channelId,
-          id: activity.conversation.id,
-          created: activity.timestamp,
+      if (!transcriptStarts.has(key) || transcript.created < transcriptStarts.get(key).created) {
+        transcriptStarts.set(key, {
+          channelId: transcript.channelId,
+          id: transcript.id,
+          created: transcript.created,
         });
       }
     }
 
     return {
-      items: Array.from(transcripts.values()),
+      items: Array.from(transcriptStarts.values()),
       continuationToken: undefined,
     };
   }
@@ -104,5 +126,11 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
   deleteTranscript(channelId: string, conversationId: string): Promise<void> {
     // https://stackoverflow.com/questions/38219702/delete-specific-application-insights-events-on-azure
     return Promise.reject(new Error('AppInsights event deletion is not supported'));
+  }
+
+  private throwIfNoReader() {
+    if (!this.readClient) {
+      throw new Error('Please configure AppInsightsTranscriptStore readOptions');
+    }
   }
 }

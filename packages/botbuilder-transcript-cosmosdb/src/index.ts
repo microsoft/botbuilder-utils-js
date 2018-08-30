@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-import { PagedResult, Transcript, TranscriptStore } from 'botbuilder-core-extensions';
+import { PagedResult, Transcript, TranscriptStore } from 'botbuilder-core';
 import { Activity } from 'botframework-schema';
 import { Collection, DocumentClient, IncludedPath } from 'documentdb';
 
@@ -14,55 +14,55 @@ const DEFAULT_COLL_NAME = 'transcripts';
 const DEFAULT_COLL_THROUGHPUT = 1000;
 const DEFAULT_COLL_TTL = 0;
 
-const DEFAULT_COLL: Collection = {
+const DEFAULT_COLL: any = {
   id: null,
   indexingPolicy: {
     automatic: true,
-    indexingMode: 'Consistent',
-    IncludedPaths: [
+    indexingMode: 'consistent',
+    includedPaths: [
       {
-        Path: '/*',
-        Indexes: [
+        path: '/*',
+        indexes: [
           {
-            Kind: 'Range',
-            DataType: 'Number',
-            Precision: -1,
+            kind: 'Range',
+            dataType: 'Number',
+            precision: -1,
           },
           {
-            Kind: 'Range',
-            DataType: 'String',
-            Precision: -1,
+            kind: 'Range',
+            dataType: 'String',
+            precision: -1,
           },
           {
-            Kind: 'Spatial',
-            DataType: 'Point',
-          } as any,
+            kind: 'Spatial',
+            dataType: 'Point',
+          },
         ],
       },
-      indexForDate('/timestamp/?'),
-      indexForDate('/localTimestamp/?'),
+      indexForDate('/activity/timestamp/?'),
+      indexForDate('/activity/localTimestamp/?'),
     ],
-    ExcludedPaths: [
+    excludedPaths: [
       {
-        Path: '/attachments/[]/content/*',
+        path: '/attachments/[]/content/*',
       },
     ],
   },
 };
 
-function indexForDate(path: string): IncludedPath {
+function indexForDate(path: string): any {
   return {
-    Path: path,
-    Indexes: [
+    path,
+    indexes: [
       {
-        Kind: 'Range',
-        DataType: 'Number',
-        Precision: -1,
+        kind: 'Range',
+        dataType: 'Number',
+        precision: -1,
       },
       {
-        Kind: 'Range',
-        DataType: 'String',
-        Precision: -1,
+        kind: 'Range',
+        dataType: 'String',
+        precision: -1,
       },
     ],
   };
@@ -194,7 +194,7 @@ export class CosmosDbTranscriptStore implements TranscriptStore {
     const parameters = [
       { name: '@channelId', value: channelId },
       { name: '@conversationId', value: conversationId },
-      { name: '@startDate', value: startDate },
+      { name: '@startDate', value: startDate || '' },
     ];
     const sql = { query: LIST_TRANSCRIPT_ACTIVITIES, parameters };
     const options = { continuation: continuationToken };
