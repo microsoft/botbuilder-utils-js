@@ -1,4 +1,4 @@
-# Botbuilder Transcript Store for CosmosDB
+# Botbuilder Transcript Store for App Insights
 
 
 ## Install
@@ -6,17 +6,20 @@
 >
 > For access, please contact chstone.
 
-`npm i botbuilder@4.0.0-aicat1.2 botbuilder-transcript-cosmosdb documentdb @types/documentdb`
+`npm i botbuilder@4.0.0-aicat1.2 botbuilder-transcript-app-insights applicationinsights`
 
 ## Usage
 
 ```TypeScript
 import { BotFrameworkAdapter, TranscriptLoggerMiddleware } from 'botbuilder';
-import { DocumentClient } from 'documentdb';
-import { CosmosDbTranscriptStore } from 'botbuilder-transcript-cosmosdb';
+import { TelemetryClient } from 'applicationinsights';
+import { AppInsightsTranscriptStore } from 'botbuilder-transcript-app-insights';
 
-const documentdb = new DocumentClient(process.env.DOCUMENTDB_URL, { masterKey: process.env.DOCUMENTDB_KEY });
-const logstore = new CosmosDbTranscriptStore(documentdb);
+const appInsights = new TelemetryClient(process.env.APP_INSIGHTS_IKEY);
+const logstore = new AppInsightsTranscriptStore(appInsights, {
+  applicationId: process.env.APP_INSIGHTS_APP_ID,
+  readKey: process.env.APP_INSIGHTS_API_KEY,
+});
 const logger = new TranscriptLoggerMiddleware(logstore);
 const adapter = new BotFrameworkAdapter({
     appId: process.env.MICROSOFT_APP_ID,
