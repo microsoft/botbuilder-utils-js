@@ -1,5 +1,11 @@
 # Botbuilder Utils for JavaScript
 
+## Packages
+
+1. [botbuilder-transcript-cosmosdb](./packages/botbuilder-transcript-cosmosdb)
+2. [botbuilder-transcript-app-insights](./packages/botbuilder-transcript-app-insights)
+3. [botbuilder-feedback](./packages/botbuilder-feedback)
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
