@@ -162,7 +162,9 @@ export class Feedback implements Middleware {
       // user did not provide feedback: clear record and continue
       } else {
         this.clearFeedbackState(context);
-        return next();
+        if (!this.userDismissed(context)) {
+          return next();
+        }
       }
 
     // no pending feedback, or user did not provide feedback
@@ -216,7 +218,11 @@ export class Feedback implements Middleware {
   }
 
   private userGaveFeedback(context: ContextWithFeedback) {
-    return context.activity.text !== feedbackActionText(this.options.dismissAction) && this.options.feedbackActions
+    return !this.userDismissed(context) && this.options.feedbackActions
       .some((x) => feedbackActionText(x) === context.activity.text);
+  }
+
+  private userDismissed(context: ContextWithFeedback) {
+    return context.activity.text === feedbackActionText(this.options.dismissAction);
   }
 }
