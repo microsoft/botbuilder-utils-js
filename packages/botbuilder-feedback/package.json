@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-feedback",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Middleware for Microsoft Bot Framework to facilitate collection and logging of user feedback analytics",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -41,9 +41,9 @@
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2",
-    "botbuilder-core": "4.0.0-aicat1.2"
+    "botbuilder-core": "^4.0.1-aicat1.4"
   },
   "peerDependencies": {
-    "botbuilder-core": "4.0.0-aicat1.2"
+    "botbuilder-core": "^4.0.1-aicat1.4"
   }
 }
