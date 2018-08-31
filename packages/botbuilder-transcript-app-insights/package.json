@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-transcript-app-insights",
-  "version": "4.0.13",
+  "version": "4.0.14",
   "description": "Plugin to store Microsoft Bot Framework transcript activities in AppInsights",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -39,8 +39,8 @@
     "@types/sinon": "^5.0.1",
     "@types/superagent": "^3.8.3",
     "applicationinsights": "^1.0.3",
-    "botbuilder-core": "4.0.0-aicat1.2",
-    "botframework-schema": "4.0.0-aicat1.1",
+    "botbuilder-core": "^4.0.1-aicat1.4",
+    "botframework-schema": "^4.0.1-aicat1.2",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "sinon": "^6.1.4",
@@ -50,8 +50,8 @@
   },
   "peerDependencies": {
     "applicationinsights": "^1.0.3",
-    "botbuilder-core": "4.0.0-aicat1.2",
-    "botframework-schema": "4.0.0-aicat1.1"
+    "botbuilder-core": "^4.0.1-aicat1.4",
+    "botframework-schema": "^4.0.1-aicat1.2"
   },
   "dependencies": {
     "superagent": "^3.8.3"

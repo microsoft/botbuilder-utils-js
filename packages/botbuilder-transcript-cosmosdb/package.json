@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-transcript-cosmosdb",
-  "version": "4.0.11",
+  "version": "4.0.12",
   "description": "Plugin to store Microsoft Bot Framework transcript activities on Azure CosmosDb",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -47,13 +47,13 @@
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2",
-    "botbuilder-core": "4.0.0-aicat1.2",
-    "botframework-schema": "4.0.0-aicat1.1",
+    "botbuilder-core": "^4.0.1-aicat1.4",
+    "botframework-schema": "^4.0.1-aicat1.2",
     "documentdb": "^1.14.5"
   },
   "peerDependencies": {
-    "botbuilder-core": "4.0.0-aicat1.2",
-    "botframework-schema": "4.0.0-aicat1.1",
+    "botbuilder-core": "^4.0.1-aicat1.4",
+    "botframework-schema": "^4.0.1-aicat1.2",
     "documentdb": "^1.14.5"
   }
 }
