@@ -128,6 +128,7 @@ loggerStore.getTranscriptActivities(<channel_id>, <conversation_id>)
   ...
 })
 .catch(console.error);
+```
 
 ### Delete Conversation in CosmosDB
 
