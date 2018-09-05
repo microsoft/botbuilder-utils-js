@@ -34,9 +34,17 @@ This writeup will show you how you can use all these operations using code snipp
 >
 > If you do not have `vsts-npm-auth`, you can install it with: `npm install -g vsts-npm-auth --registry https://registry.npmjs.com --always-auth false`
 
-Install the CosmosDB Transcript Store and DocumentDB node modules:
+Install the CosmosDB Transcript Store node module:
 
-`npm i botbuilder-transcript-cosmosdb documentdb @types/documentdb`
+```
+npm install botbuilder-transcript-cosmosdb
+```
+
+Install the DocumentDB node module, if you don't already have it:
+
+```
+npm install documentdb
+```
 
 ## Usage
 
