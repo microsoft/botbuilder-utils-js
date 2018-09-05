@@ -48,26 +48,31 @@ npm install documentdb
 
 ## Usage
 
-Now that you have the node modules installed, let's see some code snippets that you could use in your bot.
+Now that you have the node modules installed, you can enable CosmosDB transcript logging by adding the following code to your existing bot framework app.
 
-### Logging Messages to CosmosDB
+First, add this import statement for the CosmosDB Transcript Store:
 
-First let's see how to enable CosmosDB transcript logging in your existing bot. Note that the Transcript Logging middleware calls the **logActivity** method of the CosmosDB Transcript Store to write to CosmosDB.
+```TypeScript
+import { CosmosDbTranscriptStore} from 'botbuilder-transcript-cosmosdb';
+```
 
-Add an import statement for the CosmosDB Transcript Store. Also add import statements for the Transcript Logging Middleware and CosmosDB Document Client DB, if you don't already have them. For example:
+Next, add import statements for the Transcript Logging Middleware and CosmosDB Document Client DB, if you don't already have them. For example:
 
 ```TypeScript
 import { ActivityTypes, BotFrameworkAdapter, TranscriptLoggerMiddleware } from 'botbuilder';
-import { CosmosDbTranscriptStore} from 'botbuilder-transcript-cosmosdb';
 import { DocumentClient } from 'documentdb';
 ```
 
-Set the service endpoint and key for your CosmosDB account in your code or a configuration file. For example, you could add this to your code, making sure to update with the settings from your account:
+Add the following configuration settings either to your code or a configuration file, making sure to replace YOUR-SERVICE-ENDPOINT and YOUR-MASTER-KEY:
 
 ```TypeScript
 const serviceEndpoint = '<YOUR-SERVICE-ENDPOINT>';
 const masterKey = '<YOUR-MASTER-KEY>';
 ```
+
+### Logging Messages to CosmosDB
+
+Attaching the middleware to your bot adapter logs every incoming and outgoing events between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
 
 Create a DocumentClient for your CosmosDB account, and use it to create a CosmosDB Transcript Store. Lastly, update your bot adapter to use a Transcript Logger middleware using the store, for example:
 
@@ -82,14 +87,60 @@ const adapter = new BotFrameworkAdapter({
 .use(logger);
 ```
 
+Explicitly calling `logActivity` in your bot code can be achieved as well, for example:  
+
+```TypeScript
+store.logActivity(context.activity)
+.then((resp) => {
+  ...
+})
+.catch(console.error);
+```  
+
 ### Listing Converstations in CosmosDB
 
-Next let's see how to list conversations in CosmosDB using the **listTranscripts** method of the CosmosDB Transcript Store.
+This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the app insights transcript store.
+
+It takes the following as parameters:  
+- `channelId` -  (String - required) Identifier for the channel of interest.
+
+```TypeScript
+loggerStore.listTranscripts(<channel_id>)
+.then((resp) => {
+  ...
+})
+.catch(console.error);
+```
 
 ### Get Conversation Activities in CosmosDB
 
-Next let's see how to get conversations activities in CosmosDB using the **getTranscriptActivities** method of the CosmosDB Transcript Store.
+This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the app insights transcript store.
+
+It takes the following as parameters:
+- `channelId` -  (String - required) Identifier for the channel of interest.  
+- `conversationId` - (String - required) Identifier of the conversation of interest.  
+- `continuationToken` - (String - Optional) Continuation Token  
+- `startDate` - (DateObject - Optional) ISO Date object indicating a start date to scan for conversations from.  
+
+```Typescript
+loggerStore.getTranscriptActivities(<channel_id>, <conversation_id>)
+.then((resp) => {
+  ...
+})
+.catch(console.error);
 
 ### Delete Conversation in CosmosDB
 
-Finally let's see how to delete conversations in CosmosDB using the **deleteTranscript** method of the CosmosDB Transcript Store.
+This middleware exposes an API, `deleteTranscript`, which deletes a specific conversation and all of its activites.
+
+It takes the following as parameters: 
+- `channelId` -  (String - required) Identifier for the channel of interest.  
+- `conversationId` - (String - required) Identifier of the conversation of interest. 
+
+```TypeScript
+loggerStore.deleteTranscript(<channel_id>, <conversation_id>)
+.then((resp) => {
+  ...
+})
+.catch(console.error); 
+```
