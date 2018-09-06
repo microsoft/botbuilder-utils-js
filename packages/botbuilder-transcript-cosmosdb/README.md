@@ -1,4 +1,4 @@
-# Botbuilder Transcript Store for CosmosDB
+# Botbuilder CosmosDB Transcript Store Middleware
 
 ## Summary
 
@@ -50,13 +50,13 @@ npm install documentdb
 
 Now that you have the node modules installed, you can enable CosmosDB transcript logging by adding the following code to your existing bot framework app.
 
-First, add this import statement for the CosmosDB Transcript Store:
+Add this import statement for the CosmosDB Transcript Store:
 
 ```TypeScript
 import { CosmosDbTranscriptStore} from 'botbuilder-transcript-cosmosdb';
 ```
 
-Next, add import statements for the Transcript Logging Middleware and CosmosDB Document Client DB, if you don't already have them. For example:
+Add import statements for the Transcript Logging Middleware and CosmosDB Document Client DB, if you don't already have them. For example:
 
 ```TypeScript
 import { ActivityTypes, BotFrameworkAdapter, TranscriptLoggerMiddleware } from 'botbuilder';
@@ -70,15 +70,33 @@ const serviceEndpoint = '<YOUR-SERVICE-ENDPOINT>';
 const masterKey = '<YOUR-MASTER-KEY>';
 ```
 
+Create a DocumentClient using your configuration settings:
+
+```TypeScript
+const client = new DocumentClient(serviceEndpoint, {masterKey});
+```
+
 ### Logging Messages to CosmosDB
 
 Attaching the middleware to your bot adapter logs every incoming and outgoing event between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
 
-Create a DocumentClient for your CosmosDB account, and use it to create a CosmosDB Transcript Store. Lastly, update your bot adapter to use a Transcript Logger middleware using the store, for example:
+Create a `CosmosDBTranscriptStore`. It takes the following as parameters:
+
+- `client` - (DocumentClient - required) User provides an already-configured documentdb instance to the transcript store. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store.
+- `databaseName` - (string - optional) The name of the CosmosDb database where transcripts will be stored (default: botframework).
+- `collectionName`- (string - optional) The name of the CosmosDb collection where transcripts will be stored (default: transcripts).
+- `throughput` - (number - optional) Mumber of request units (RU) to be assigned to the transcripts collection, if it does not already exist.
+- `ttl` - (number - optional) Time-to-live, or the number of seconds that a logged transcript should be kept (default: 0, or does not expire).
+
+Here's an example using the defaults:
 
 ```TypeScript
-const client = new DocumentClient(serviceEndpoint, {masterKey});
 const store = new CosmosDbTranscriptStore(client);
+```
+
+Update your bot adapter to use a Transcript Logger middleware using the store, for example:
+
+```TypeScript
 const logger = new TranscriptLoggerMiddleware(store);
 const adapter = new BotFrameworkAdapter({
    appId: process.env.MICROSOFT_APP_ID,
@@ -97,15 +115,15 @@ store.logActivity(context.activity)
 .catch(console.error);
 ```  
 
-### Listing Converstations in CosmosDB
+### Listing Conversations in CosmosDB
 
 This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the CosmosDB transcript store.
 
 It takes the following as parameters:  
-- `channelId` -  (String - required) Identifier for the channel of interest.
+- `channelId` - (String - required) Identifier for the channel of interest.
 
 ```TypeScript
-loggerStore.listTranscripts(<channel_id>)
+store.listTranscripts(<channel_id>)
 .then((resp) => {
   ...
 })
@@ -117,13 +135,13 @@ loggerStore.listTranscripts(<channel_id>)
 This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the CosmosDB transcript store.
 
 It takes the following as parameters:
-- `channelId` -  (String - required) Identifier for the channel of interest.  
+- `channelId` - (String - required) Identifier for the channel of interest.  
 - `conversationId` - (String - required) Identifier of the conversation of interest.  
 - `continuationToken` - (String - Optional) Continuation Token  
 - `startDate` - (DateObject - Optional) ISO Date object indicating a start date to scan for conversations from.  
 
 ```Typescript
-loggerStore.getTranscriptActivities(<channel_id>, <conversation_id>)
+store.getTranscriptActivities(<channel_id>, <conversation_id>)
 .then((resp) => {
   ...
 })
@@ -139,7 +157,7 @@ It takes the following as parameters:
 - `conversationId` - (String - required) Identifier of the conversation of interest. 
 
 ```TypeScript
-loggerStore.deleteTranscript(<channel_id>, <conversation_id>)
+store.deleteTranscript(<channel_id>, <conversation_id>)
 .then((resp) => {
   ...
 })
