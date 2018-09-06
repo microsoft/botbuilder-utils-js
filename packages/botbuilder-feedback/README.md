@@ -1,5 +1,6 @@
-# Botbuilder Feedback-Collection Middleware
+# Botbuilder Feedback Collection Middleware
 
+## Summary
 
 ## Install
 > This package is currently published to a private npm repo at https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/

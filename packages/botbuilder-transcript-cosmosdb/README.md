@@ -63,14 +63,14 @@ import { ActivityTypes, BotFrameworkAdapter, TranscriptLoggerMiddleware } from '
 import { DocumentClient } from 'documentdb';
 ```
 
-Add the following configuration settings either to your code or a configuration file, making sure to replace YOUR-SERVICE-ENDPOINT and YOUR-MASTER-KEY:
+Add the following configuration settings either to your code or a configuration file, making sure to replace YOUR-SERVICE-ENDPOINT and YOUR-MASTER-KEY. For example:
 
 ```TypeScript
 const serviceEndpoint = '<YOUR-SERVICE-ENDPOINT>';
 const masterKey = '<YOUR-MASTER-KEY>';
 ```
 
-Create a DocumentClient using your configuration settings:
+Create a DocumentClient using your configuration settings. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store. For example:
 
 ```TypeScript
 const client = new DocumentClient(serviceEndpoint, {masterKey});
@@ -80,9 +80,9 @@ const client = new DocumentClient(serviceEndpoint, {masterKey});
 
 Attaching the middleware to your bot adapter logs every incoming and outgoing event between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
 
-Create a `CosmosDBTranscriptStore`. It takes the following as parameters:
+First you will need a `CosmosDBTranscriptStore`. It takes the following as parameters:
 
-- `client` - (DocumentClient - required) User provides an already-configured documentdb instance to the transcript store. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store.
+- `client` - (DocumentClient - required) User provides an already-configured documentdb instance to the transcript store. 
 - `databaseName` - (string - optional) The name of the CosmosDb database where transcripts will be stored (default: botframework).
 - `collectionName`- (string - optional) The name of the CosmosDb collection where transcripts will be stored (default: transcripts).
 - `throughput` - (number - optional) Mumber of request units (RU) to be assigned to the transcripts collection, if it does not already exist.
