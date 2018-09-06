@@ -72,7 +72,7 @@ const masterKey = '<YOUR-MASTER-KEY>';
 
 ### Logging Messages to CosmosDB
 
-Attaching the middleware to your bot adapter logs every incoming and outgoing events between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
+Attaching the middleware to your bot adapter logs every incoming and outgoing event between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
 
 Create a DocumentClient for your CosmosDB account, and use it to create a CosmosDB Transcript Store. Lastly, update your bot adapter to use a Transcript Logger middleware using the store, for example:
 
@@ -99,7 +99,7 @@ store.logActivity(context.activity)
 
 ### Listing Converstations in CosmosDB
 
-This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the app insights transcript store.
+This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the CosmosDB transcript store.
 
 It takes the following as parameters:  
 - `channelId` -  (String - required) Identifier for the channel of interest.
@@ -114,7 +114,7 @@ loggerStore.listTranscripts(<channel_id>)
 
 ### Get Conversation Activities in CosmosDB
 
-This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the app insights transcript store.
+This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the CosmosDB transcript store.
 
 It takes the following as parameters:
 - `channelId` -  (String - required) Identifier for the channel of interest.  
@@ -132,7 +132,7 @@ loggerStore.getTranscriptActivities(<channel_id>, <conversation_id>)
 
 ### Delete Conversation in CosmosDB
 
-This middleware exposes an API, `deleteTranscript`, which deletes a specific conversation and all of its activites.
+This middleware exposes an API, `deleteTranscript`, which deletes a specific conversation and all of its activites from the CosmosDB transcript store.
 
 It takes the following as parameters: 
 - `channelId` -  (String - required) Identifier for the channel of interest.  
