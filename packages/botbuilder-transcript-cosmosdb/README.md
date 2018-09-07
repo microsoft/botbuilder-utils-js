@@ -18,8 +18,6 @@ The following are the data access operations supported by the CosmosDB Transcrip
 - `getTranscriptActivities` - Get activities for a conversation (Aka the transcript).
 - `deleteTranscript` - Delete a specific conversation and all of it's activites.
 
-This writeup will show you how you can use all these operations using code snippets that you can add to your existing bot.
-
 ## Prerequisites
 
 - A [CosmosDB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction) account

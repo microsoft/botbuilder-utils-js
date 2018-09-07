@@ -13,6 +13,10 @@ It does this by creating a `Feedback` bot middleware class that can be registere
 The following is the operation supported by the Feedback Collection Middleware:
 - `requestFeedback` - Returns a message that includes feedback prompts in the form of Suggested Actions.
 
+## Prerequisites
+
+- An existing NodeJS bot, using the [Bot Framework SDK v4](https://dev.botframework.com/)
+
 ## Install
 
 > This project uses a private npm repo. For access, please contact chstone.
