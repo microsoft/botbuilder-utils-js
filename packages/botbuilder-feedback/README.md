@@ -44,7 +44,13 @@ Add this import statement for the Feedback Collection Middleware (some of the op
 import { Feedback } from 'botbuilder-feedback';
 ```
 
-Next you will need a `Feedback`. It takes the following as parameters:
+You will need a `ConversationState`, if you don't already have one. For this example we create it using `MemoryStorage`, but for more robust applications you may want a more durable storage such as `TableStorage`:
+
+```TypeScript
+const conversationState = new ConversationState(new MemoryStorage());
+```
+
+Next you will need a `Feedback` instance. It takes the following as parameters:
 
 - `conversationState` - (ConversationState - required) The instance of ConversationState used by your bot
 - `feedbackActions` - (FeedbackAction[] - optional) Custom feedback choices for the user. Default values are: `['👍 good answer', '👎 bad answer']`
@@ -53,14 +59,13 @@ Next you will need a `Feedback`. It takes the following as parameters:
 - `promptFreeForm` - (boolean | string[] - optional) Optionally enable prompting for free-form comments for all or select feedback choices (free-form prompt is shown after user selects a preset choice)
 - `freeFormPrompt` - (Message - optional) - Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
 
-Next, create a `ConversationState`. For this example we create it using `MemoryStorage`, but for more robust applications you may want a more durable storage such as `TableStorage`. Use this to create a `Feedback` instance.
+Here's an example using the defaults:
 
 ```TypeScript
-const conversationState = new ConversationState(new MemoryStorage());
 const feedback = new Feedback({ conversationState });
 ```
 
-Update your bot adapter to use a Feedback Collection middleware using the store, for example:
+Update your bot adapter to use feedback, for example:
 
 ```TypeScript
 const adapter = new BotFrameworkAdapter({
@@ -90,7 +95,7 @@ const logic = (context: TurnContext) => {
 
 Now that you have the basics working, let's see how to customize `Feedback`. Let's do this by taking another look at each of the optional constructor parameters.
 
-As you go through the various examples, note that you can construct `Feedback` with zero or more of these optional parametres. Here's an example using all of them (note that `conversationState` is required):
+As you go through the various examples, note that you can construct `Feedback` with zero or more of these optional parameters. Here's an example using all of them (note that `conversationState` is required):
 
 ```TypeScript
 const feedback = new Feedback({ conversationState, feedbackActions, feedbackResponse, dismissAction, promptFreeForm, freeFormPrompt });
