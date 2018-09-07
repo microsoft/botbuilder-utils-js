@@ -105,7 +105,7 @@ const feedback = new Feedback({ conversationState, feedbackActions, feedbackResp
 
 ### feedbackActions
 
-By setting this you can control the feedback choices for the user. The default values are: `['👍 good answer', '👎 bad answer']`. The data type is a `FeedbackAction` array, where `FeedbackAction` can either be a `string` or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
+By setting this you can control the feedback choices for the user. The default values are: `['👍 good answer', '👎 bad answer']`. The data type is a `FeedbackAction` array, where `FeedbackAction` can either be a string or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
 
 For a string array, here are some examples:
 
@@ -130,18 +130,18 @@ const feedbackActions: FeedbackAction[] = [
 
 ### feedbackResponse
 
-By setting this you can control the message that appears when a user provides some feedback. The default value is `'Thanks for your feedback!'`. The data type is a `Message`, where `Message` can either be a single `string` or a text `string` and a speak `string` (the speak `string` can be spoken if the channel supports it).
+By setting this you can control the message that appears when a user provides some feedback. The default value is `'Thanks for your feedback!'`. The data type is a `Message`, where `Message` can either be a single string or a `text` string and a `speak` string (the speak string can be spoken if the channel supports it).
 
 Here are some examples:
 
 ```TypeScript
 const feedbackResponse: Message = 'Thanks a million!';
-const feedbackResponse: Message = {text: 'Thanks a million!', speak: 'Thanks a <emphasis level=\"moderate\">million</emphasis>!' };
+const feedbackResponse: Message = {text: 'Thanks a million!', speak: 'Thanks a <emphasis level=\"strong\">million</emphasis>!' };
 ```
 
 ### dismissAction
 
-By setting this you can control the text to show on the button that allows users to hide/ignore the feedback request. The default value is `'dismiss'`. The data type is a `FeedbackAction`, where `FeedbackAction` can either be a `string` or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
+By setting this you can control the text to show on the button that allows users to hide/ignore the feedback request. The default value is `'dismiss'`. The data type is a `FeedbackAction`, where `FeedbackAction` can either be a string or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
 
 For a string, here is an example:
 
@@ -151,7 +151,7 @@ const dismissAction: FeedbackAction = "ignore!!!";
 
 ### promptFreeForm
 
-By setting this you can control whether or not free-form comments are allowed for all or select feedback choices (free-form prompt is shown after user selects a preset choice). The default value is false. The data type as `boolean` or a `string` array (used to specify for which choices to allow free-form feedback).
+By setting this you can control whether or not free-form comments are allowed for all or select feedback choices (free-form prompt is shown after user selects a preset choice). The default value is false. The data type is a boolean or a string array (used to specify for which choices to allow free-form feedback).
 
 For a boolean, here is an example:
 
@@ -167,7 +167,7 @@ const promptFreeForm: string[] = ['Strongly disagree'];
 
 ### freeFormPrompt
 
-By setting this you can control the message to show when `promptFreeForm` is enabled. The default value is `'Please add any additional comments in the chat'`.  The data type is a `Message`, where `Message` can either be a single `string` or a text `string` and a speak `string` (the speak `string` can be spoken if the channel supports it).
+By setting this you can control the message to show when `promptFreeForm` is enabled. The default value is `'Please add any additional comments in the chat'`.  The data type is a `Message`, where `Message` can either be a single string or a `text` string and a `speak` string (the speak string can be spoken if the channel supports it).
 
 Here is an example:
 
