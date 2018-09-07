@@ -1,6 +1,6 @@
 # Botbuilder Feedback Collection Middleware
 
-In this tutorial you will learn how to quickly add the ability for users to provide feedback for your bot responses in your existing NodeJS bot.
+In this tutorial you will learn how to quickly add the ability for users to provide feedback for your bot responses into your existing NodeJS bot.
 
 ## Summary
 
@@ -42,7 +42,7 @@ Add this import statement for the Feedback Collection Middleware (some of the op
 import { Feedback } from 'botbuilder-feedback';
 ```
 
-You will need a `ConversationState`, if you don't already have one. For this example we create it using `MemoryStorage`, but for more robust applications you may want a more durable storage such as `TableStorage`:
+You will need a [`ConversationState`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/conversationstate), if you don't already have one. For this example we create it using [`MemoryStorage`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/memorystorage), but for more robust applications you may want a more durable storage such as [`TableStorage`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-azure/tablestorage):
 
 ```TypeScript
 const conversationState = new ConversationState(new MemoryStorage());
@@ -101,7 +101,7 @@ const feedback = new Feedback({ conversationState, feedbackActions, feedbackResp
 
 ### feedbackActions
 
-By setting this you can control the feedback choices for the user. The default values are: `['👍 good answer', '👎 bad answer']`. The data type is a `FeedbackAction` array, where `FeedbackAction` can either be a `string` or a `CardAction`.
+By setting this you can control the feedback choices for the user. The default values are: `['👍 good answer', '👎 bad answer']`. The data type is a `FeedbackAction` array, where `FeedbackAction` can either be a `string` or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
 
 For a string array, here are some examples:
 
@@ -137,7 +137,7 @@ const feedbackResponse: Message = {text: 'Thanks a million!', speak: 'Thanks a <
 
 ### dismissAction
 
-By setting this you can control the text to show on the button that allows users to hide/ignore the feedback request. The default value is `'dismiss'`. The data type is a `FeedbackAction`, where `FeedbackAction` can either be a `string` or a `CardAction`.
+By setting this you can control the text to show on the button that allows users to hide/ignore the feedback request. The default value is `'dismiss'`. The data type is a `FeedbackAction`, where `FeedbackAction` can either be a `string` or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
 
 For a string, here is an example:
 
