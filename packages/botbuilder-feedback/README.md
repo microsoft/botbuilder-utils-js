@@ -1,19 +1,17 @@
 # Botbuilder Feedback Collection Middleware
 
-## Summary
+In this tutorial you will learn how to quickly add the ability for users to provide feedback for your bot responses in your existing NodeJS bot.
 
-Learn how to quickly add feedback collection into your NodeJS bot.
+## Summary
 
 The Feedback Collection Middleware is a node module for Bot Framework SDK v4 that gives users the ability to provide feedback for the bot responses. For example, they can specify that a particular reply is 'good' or 'bad'. They can also add free-form feedback text if they want. The bot developer also has the ability to customize the interaction, such as specifying the list of feedback options that the user can select.
 
 ![running](images/default-feedback-annotated-resized-66.png)
 
-It does this by creating a `Feedback` bot middleware class that can be registered with the `BotFrameworkAdapter`, giving the bot developer the ability to modify the converation flow. Specifically, when processing the user's activity, the bot developer can decide to add a customizable list of buttons (or CardActions) to the bot's reply back to the user. This feedback is stored in the transcript log and can be analyzed, for example, to improve the bot responses.
+It does this by creating a `Feedback` bot middleware class that can be registered with the `BotFrameworkAdapter`, giving the bot developer the ability to modify the conversation flow. When processing the user's activity, the bot developer can decide to add a customizable list of buttons (or CardActions) to the bot's reply back to the user. This feedback is stored in the transcript log and can be analyzed later to improve the bot responses.
 
 The following is the operation supported by the Feedback Collection Middleware:
 - `requestFeedback` - Returns a message that includes feedback prompts in the form of Suggested Actions.
-
-This writeup will show you how you can use this operation using code snippets that you can add to your existing bot.
 
 ## Install
 
