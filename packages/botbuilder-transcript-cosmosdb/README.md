@@ -4,17 +4,17 @@ In this tutorial you will learn how to quickly integrate CosmosDB transcript log
 
 ## Summary
 
-The CosmosDB Transcript Store is a node module for Bot Framework SDK v4, implementing the [TranscriptStore](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptstore) interface. It is designed to be used as middleware to log all transcripts to CosmosDB. It can also be used to list, get, and delete the transcripts in CosmosDB.
+The CosmosDB Transcript Store is a node module for Bot Framework SDK v4, implementing the [TranscriptStore](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptstore) interface. It is designed to be used as [middleware](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-middleware?view=azure-bot-service-4.0) to log all transcripts to CosmosDB. It can also be used to list, get, and delete the transcripts in CosmosDB.
 
 Let's begin by defining a few terms you should familiarize yourself with:
 
-> `activity` - A single message sent between the user and the bot.
+> [`activity`](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-activity-processing?view=azure-bot-service-4.0) - A single message sent between the user and the bot.
 
-> `conversation` - A group of activities between the user and the bot with a defined start and stop date. Typically a conversation starts with an initial message from the user.
+> [`conversation`](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-conversations?view=azure-bot-service-4.0) - A group of activities between the user and the bot with a defined start and stop date. Typically a conversation starts with an initial message from the user.
 
-> `transcript` - A collection of activities and corresponding processing artifacts (such as calls to external APIs such as LUIS, QnA Maker, or AzureSearch) in a defined schema. Transcripts can be stored for subsequent analysis.
+> [`transcript`](https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md) - A collection of activities and corresponding processing artifacts (such as calls to external APIs such as LUIS, QnA Maker, or AzureSearch) in a defined schema. Transcripts can be stored for subsequent analysis.
 
-> `channel` - The communication service being used for your bot, such as Cortana, Skype, Web Chat, Facebook Messenger, Kik, and Slack.
+> [`channel`](https://docs.microsoft.com/en-us/azure/bot-service/bot-concepts?view=azure-bot-service-4.0) - The communication service being used for your bot, such as Cortana, Skype, Web Chat, Facebook Messenger, Kik, and Slack.
 
 The following are the data access operations supported by the CosmosDB Transcript Store:
 - `logActivity` - Log an activity to the transcript.
@@ -25,7 +25,7 @@ The following are the data access operations supported by the CosmosDB Transcrip
 ## Prerequisites
 
 - A [CosmosDB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction) account
-- An existing NodeJS bot, using the [Bot Framework SDK v4](https://dev.botframework.com/)
+- An existing NodeJS bot, using the [Bot Framework SDK v4](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0)
 
 ## Install
 
@@ -171,3 +171,30 @@ store.deleteTranscript(<channel_id>, <conversation_id>)
 })
 .catch(console.error); 
 ```
+
+## Customize
+
+constructor options
+
+## Analyze
+
+https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md
+
+schema
+
+sample portal SQL
+
+  show all text messages from users
+  ordered by timestamp
+
+  select b.text, b.conversation.id as cid, b.timestamp
+  from a.activity b
+  where
+  b.text <> '' and
+  b.recipient.id = 'default-bot'
+  order by b.timestamp desc
+
+sample NodeJS code
+
+  show counts of all text messages and conversations per user
+  order by timestamp
