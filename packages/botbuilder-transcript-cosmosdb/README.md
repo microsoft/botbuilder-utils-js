@@ -84,11 +84,7 @@ Create a DocumentClient using your configuration settings. This allows the user 
 const client = new DocumentClient(serviceEndpoint, {masterKey});
 ```
 
-### Logging Messages to CosmosDB
-
-Attaching the middleware to your bot adapter logs every incoming and outgoing event between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
-
-First you will need a `CosmosDBTranscriptStore`. It takes the following as parameters:
+Create a `CosmosDBTranscriptStore`. It takes the following parameters:
 
 - `client` - (DocumentClient - required) User provides an already-configured documentdb instance to the transcript store. 
 - `databaseName` - (string - optional) The name of the CosmosDb database where transcripts will be stored (default: botframework).
@@ -101,6 +97,10 @@ Here's an example using the defaults:
 ```TypeScript
 const store = new CosmosDbTranscriptStore(client);
 ```
+
+### Logging Messages to CosmosDB
+
+Attaching the middleware to your bot adapter logs every incoming and outgoing event between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
 
 Update your bot adapter to use a [TranscriptLoggerMiddleware](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptloggermiddleware) using the store, for example:
 
@@ -127,7 +127,7 @@ store.logActivity(context.activity)
 
 This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the CosmosDB transcript store.
 
-It takes the following as parameters:  
+It takes the following parameters:  
 - `channelId` - (String - required) Identifier for the channel of interest.
 
 ```TypeScript
@@ -142,7 +142,7 @@ store.listTranscripts(<channel_id>)
 
 This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the CosmosDB transcript store.
 
-It takes the following as parameters:
+It takes the following parameters:
 - `channelId` - (String - required) Identifier for the channel of interest.  
 - `conversationId` - (String - required) Identifier of the conversation of interest.  
 - `continuationToken` - (String - Optional) Continuation Token  
@@ -160,7 +160,7 @@ store.getTranscriptActivities(<channel_id>, <conversation_id>)
 
 This middleware exposes an API, `deleteTranscript`, which deletes a specific conversation and all of its activites from the CosmosDB transcript store.
 
-It takes the following as parameters: 
+It takes the following parameters: 
 - `channelId` -  (String - required) Identifier for the channel of interest.  
 - `conversationId` - (String - required) Identifier of the conversation of interest. 
 
@@ -172,29 +172,44 @@ store.deleteTranscript(<channel_id>, <conversation_id>)
 .catch(console.error); 
 ```
 
-## Customize
+## Schema
 
-constructor options
+When it comes time to analyze the stored transaction logs, it is important to understand the schema of the documents so you can create your queries appropriately. Each document consists of the properties defined in the JSON schema for [`Activity`](https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md), the `start` property (added by the CosmosDB Transcript Store used to indicate whether or not this activity is the first activity in a conversation), and the [standard CosmosDB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-resources#system-vs-user-defined-resources) properties.
 
-## Analyze
+Here is an example:
 
-https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md
-
-schema
-
-sample portal SQL
-
-  show all text messages from users
-  ordered by timestamp
-
-  select b.text, b.conversation.id as cid, b.timestamp
-  from a.activity b
-  where
-  b.text <> '' and
-  b.recipient.id = 'default-bot'
-  order by b.timestamp desc
-
-sample NodeJS code
-
-  show counts of all text messages and conversations per user
-  order by timestamp
+```JSON
+"activity": {
+	"type": "conversationUpdate",
+	"membersAdded": [
+		{
+			"id": "default-bot",
+			"name": "Bot"
+		}
+	],
+	"id": "9b7jb8lf4258",
+	"channelId": "emulator",
+	"timestamp": "2018-09-05T15:35:14.627Z",
+	"localTimestamp": "2018-09-05T11:35:14-04:00",
+	"recipient": {
+		"id": "default-bot",
+		"name": "Bot"
+	},
+	"conversation": {
+		"id": "a2gigibf515i"
+	},
+	"from": {
+		"id": "default-user",
+		"name": "User",
+		"role": "user"
+	},
+	"serviceUrl": "http://localhost:59426"
+},
+"start": true,
+"id": "beca96ae-8101-6bd6-8d27-349a2844e581",
+"_rid": "VOgVAP9F8HMDAAAAAAAAAA==",
+"_self": "dbs/VOgVAA==/colls/VOgVAP9F8HM=/docs/VOgVAP9F8HMDAAAAAAAAAA==/",
+"_etag": "\"0000d868-0000-0000-0000-5b8ff7b30000\"",
+"_attachments": "attachments/",
+"_ts": 1536161715
+```
