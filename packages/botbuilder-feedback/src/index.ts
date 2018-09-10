@@ -12,7 +12,7 @@ const TRACE_TYPE = 'https://www.example.org/schemas/feedback/trace';
 const TRACE_NAME = 'Feedback';
 const TRACE_LABEL = 'User Feedback';
 
-type Message = string | { text: string, speak?: string };
+export type Message = string | { text: string, speak?: string };
 
 const feedbackActionText = (action: FeedbackAction) => typeof action === 'string' ? action : action.text;
 
