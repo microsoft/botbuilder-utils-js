@@ -32,10 +32,18 @@
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
+    "botbuilder-core": "^4.0.1-aicat1.4",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "@types/nock": "^9.3.0",
+    "nock": "^9.6.1"
+  },
+  "peerDependencies": {
+    "botbuilder-core": "^4.0.1-aicat1.4"
   }
 }
