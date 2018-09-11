@@ -60,11 +60,22 @@ Now that you have the node modules installed, you can enable CosmosDB transcript
 
 Add this import statement for the CosmosDB Transcript Store:
 
+JavaScript:
+```JavaScript
+const { CosmosDbTranscriptStore} = require('botbuilder-transcript-cosmosdb');
+```
+
+TypeScript:
 ```TypeScript
 import { CosmosDbTranscriptStore} from 'botbuilder-transcript-cosmosdb';
 ```
 
 Add import statements for the Transcript Logging Middleware and CosmosDB Document Client DB, if you don't already have them. For example:
+
+```JavaScript
+const { ActivityTypes, BotFrameworkAdapter, TranscriptLoggerMiddleware } = require('botbuilder');
+const { DocumentClient } = require('documentdb');
+```
 
 ```TypeScript
 import { ActivityTypes, BotFrameworkAdapter, TranscriptLoggerMiddleware } from 'botbuilder';
@@ -73,6 +84,7 @@ import { DocumentClient } from 'documentdb';
 
 Add the following configuration settings either to your code or a configuration file, making sure to replace YOUR-SERVICE-ENDPOINT and YOUR-MASTER-KEY. For example:
 
+JavaScript | TypeScript:
 ```TypeScript
 const serviceEndpoint = '<YOUR-SERVICE-ENDPOINT>';
 const masterKey = '<YOUR-MASTER-KEY>';
@@ -80,6 +92,7 @@ const masterKey = '<YOUR-MASTER-KEY>';
 
 Create a DocumentClient using your configuration settings. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store. For example:
 
+JavaScript | TypeScript:
 ```TypeScript
 const client = new DocumentClient(serviceEndpoint, {masterKey});
 ```
@@ -94,6 +107,7 @@ Create a `CosmosDBTranscriptStore`. It takes the following parameters:
 
 Here's an example using the defaults:
 
+JavaScript | TypeScript:
 ```TypeScript
 const store = new CosmosDbTranscriptStore(client);
 ```
@@ -104,6 +118,7 @@ Attaching the middleware to your bot adapter logs every incoming and outgoing ev
 
 Update your bot adapter to use a [TranscriptLoggerMiddleware](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptloggermiddleware) using the store, for example:
 
+JavaScript | TypeScript:
 ```TypeScript
 const logger = new TranscriptLoggerMiddleware(store);
 const adapter = new BotFrameworkAdapter({
@@ -115,6 +130,7 @@ const adapter = new BotFrameworkAdapter({
 
 Explicitly calling `logActivity` in your bot code can be achieved as well, for example:  
 
+JavaScript | TypeScript:
 ```TypeScript
 store.logActivity(context.activity)
 .then((resp) => {
@@ -130,6 +146,7 @@ This middleware also exposes an API, `listTranscripts`, which returns a promise 
 It takes the following parameters:  
 - `channelId` - (String - required) Identifier for the channel of interest.
 
+JavaScript | TypeScript:
 ```TypeScript
 store.listTranscripts(<channel_id>)
 .then((resp) => {
@@ -148,6 +165,7 @@ It takes the following parameters:
 - `continuationToken` - (String - Optional) Continuation Token  
 - `startDate` - (DateObject - Optional) ISO Date object indicating a start date to scan for conversations from.  
 
+JavaScript | TypeScript:
 ```Typescript
 store.getTranscriptActivities(<channel_id>, <conversation_id>)
 .then((resp) => {
@@ -164,6 +182,7 @@ It takes the following parameters:
 - `channelId` -  (String - required) Identifier for the channel of interest.  
 - `conversationId` - (String - required) Identifier of the conversation of interest. 
 
+JavaScript | TypeScript:
 ```TypeScript
 store.deleteTranscript(<channel_id>, <conversation_id>)
 .then((resp) => {
