@@ -5,6 +5,7 @@ import * as path from 'path';
 import { createDirIfNotExist } from './create-dir-if-not-exist';
 import { findRootModuleDir } from './find-root-module-dir';
 import { writeFilePromise } from './fs-promise';
+import { HttpTestPlayback } from './http-test-playback';
 
 const LUIS_HOST = /^https:\/\/[^.]+\.api\.cognitive\.microsoft\.com:443/;
 const LUIS_PATH = /\/luis\/v2.0\/apps\/[^?]+/;
@@ -15,25 +16,30 @@ const SESSION_NAME = /rec:(?:end|stop):(.+)/;
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
 export type RequestFilter = (request: NockDefinition) => boolean;
 
-export interface HttpTestRecorderOptions {
+export interface HttpTestFileOptions {
+  /** path to store captured JSON request/response data (default = `./test/data`, relative to root package.json). this directory will be created if it does not exist */
+  testDataDirectory?: string;
+}
 
+export interface HttpTestRecorderOptions extends HttpTestFileOptions {
   /** stored requests/responses will be passed through these functions. use to remove secrets or change parts of the url or path */
   transformRequest?: RequestTransformer[];
 
   /** only requests matching all of these filter will be stored */
   requestFilter?: RequestFilter[];
-
-  /** path to store captured JSON request/response data (default = `./test/data`, relative to root package.json). this directory will be created if it does not exist */
-  testDataDirectory?: string;
 }
 
+/**
+ * Middleware to support automatic collection and cleansing of HTTP requests/responses for external services like LUIS.
+ * Stored HTTP response can be loaded into your unit tests to validate your bot locig without requiring actual network calls to supporting services.
+ */
 export class HttpTestRecorder implements Middleware {
-  private dirChecked = false;
-
+  /**
+   * Create a new recorder instance
+   * @param options optional middleware configuration
+   */
   constructor(private options?: HttpTestRecorderOptions) {
-    if (!options) {
-      this.options = {};
-    }
+    this.options = options || {};
 
     if (!this.options.requestFilter) {
       this.options.requestFilter = [];
@@ -51,6 +57,7 @@ export class HttpTestRecorder implements Middleware {
       this.options.testDataDirectory = path.join(findRootModuleDir(), 'test', 'data');
     }
   }
+
   async onTurn(context: TurnContext, next: () => Promise<void>): Promise<void> {
 
     // extract optional session name from the end directive
@@ -111,6 +118,13 @@ export class HttpTestRecorder implements Middleware {
     }
 
     return this;
+  }
+
+  /**
+   * Create a new playback instance to use in unit tests
+   */
+  createPlayback() {
+    return new HttpTestPlayback(this.options);
   }
 
   private extractSessionName(context: TurnContext) {
