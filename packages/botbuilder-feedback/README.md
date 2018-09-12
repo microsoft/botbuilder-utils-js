@@ -42,13 +42,13 @@ Now that you have the node module installed, you can enable feedback collection 
 
 Add this import statement for the Feedback Collection Middleware (some of the optional constructor arguments, described later on, will also require `FeedbackAction` and `Message` from the same package):
 
-```TypeScript
-import { Feedback } from 'botbuilder-feedback';
+```JavaScript
+const { Feedback } = require('botbuilder-feedback');
 ```
 
 You will need a [`ConversationState`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/conversationstate), if you don't already have one. For this example we create it using [`MemoryStorage`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/memorystorage), but for more robust applications you may want a more durable storage such as [`TableStorage`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-azure/tablestorage):
 
-```TypeScript
+```JavaScript
 const conversationState = new ConversationState(new MemoryStorage());
 ```
 
@@ -63,13 +63,13 @@ Next you will need a `Feedback` instance. It takes the following as parameters:
 
 Here's an example using the defaults:
 
-```TypeScript
+```JavaScript
 const feedback = new Feedback({ conversationState });
 ```
 
 Update your bot adapter to use feedback, for example:
 
-```TypeScript
+```JavaScript
 const adapter = new BotFrameworkAdapter({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD,
@@ -78,7 +78,7 @@ const adapter = new BotFrameworkAdapter({
 
 Now you are ready to use it to enable feedback collection, for example:
 
-```TypeScript
+```JavaScript
 const logic = (context: TurnContext) => {
   if (context.activity.text === 'what?') {
 
@@ -99,7 +99,7 @@ Now that you have the basics working, let's see how to customize `Feedback`. Let
 
 As you go through the various examples, note that you can construct `Feedback` with zero or more of these optional parameters. Here's an example using all of them (note that `conversationState` is required):
 
-```TypeScript
+```JavaScript
 const feedback = new Feedback({ conversationState, feedbackActions, feedbackResponse, dismissAction, promptFreeForm, freeFormPrompt });
 ```
 
@@ -109,17 +109,17 @@ By setting this you can control the feedback choices for the user. The default v
 
 For a string array, here are some examples:
 
-```TypeScript
-const feedbackActions: FeedbackAction[] = ['✔ Correct', '✖ Incorrect'];
-const feedbackActions: FeedbackAction[] = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-const feedbackActions: FeedbackAction[] = ['Not at all helpful', 'Slightly helpful', 'Somewhat helpful', 'Very helpful', 'Extremely helpful'];
-const feedbackActions: FeedbackAction[] = ['Strongly disagree', 'Somewhat disagree', 'Somewhat agree', 'Strongly agree'];
+```JavaScript
+const feedbackActions = ['✔ Correct', '✖ Incorrect'];
+const feedbackActions = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const feedbackActions = ['Not at all helpful', 'Slightly helpful', 'Somewhat helpful', 'Very helpful', 'Extremely helpful'];
+const feedbackActions = ['Strongly disagree', 'Somewhat disagree', 'Somewhat agree', 'Strongly agree'];
 ```
 
 For a CardAction array, here is an example:
 
-```TypeScript
-const feedbackActions: FeedbackAction[] = [
+```JavaScript
+const feedbackActions = [
     { title: "😩 Poor", type: ActionTypes.ImBack, value: "😩 Poor" },
     { title: "😟 Fair", type: ActionTypes.ImBack, value: "😟 Fair" },
     { title: "😐 Good", type: ActionTypes.ImBack, value: "😐 Good" },
@@ -134,9 +134,9 @@ By setting this you can control the message that appears when a user provides so
 
 Here are some examples:
 
-```TypeScript
-const feedbackResponse: Message = 'Thanks a million!';
-const feedbackResponse: Message = {text: 'Thanks a million!', speak: 'Thanks a <emphasis level=\"strong\">million</emphasis>!' };
+```JavaScript
+const feedbackResponse = 'Thanks a million!';
+const feedbackResponse = {text: 'Thanks a million!', speak: 'Thanks a <emphasis level=\"strong\">million</emphasis>!' };
 ```
 
 ### dismissAction
@@ -145,8 +145,8 @@ By setting this you can control the text to show on the button that allows users
 
 For a string, here is an example:
 
-```TypeScript
-const dismissAction: FeedbackAction = "ignore!!!";
+```JavaScript
+const dismissAction = "ignore!!!";
 ```
 
 ### promptFreeForm
@@ -155,14 +155,14 @@ By setting this you can control whether or not free-form comments are allowed fo
 
 For a boolean, here is an example:
 
-```TypeScript
-const promptFreeForm: boolean = true;
+```JavaScript
+const promptFreeForm = true;
 ```
 
 For a string array, here is an example (free-form prompt is shown for this particular selection):
 
-```TypeScript
-const promptFreeForm: string[] = ['Strongly disagree'];
+```JavaScript
+const promptFreeForm = ['Strongly disagree'];
 ```
 
 ### freeFormPrompt
@@ -171,6 +171,6 @@ By setting this you can control the message to show when `promptFreeForm` is ena
 
 Here is an example:
 
-```TypeScript
-const freeFormPrompt: Message = 'You strongly disagree? Please provide additional feedback';
+```JavaScript
+const freeFormPrompt = 'You strongly disagree? Please provide additional feedback';
 ```
