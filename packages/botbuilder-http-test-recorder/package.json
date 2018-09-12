@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-http-test-recorder",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "Middleware for Microsoft Bot Framework to facilitate mocking of HTTP response when testing logic that relies on external services like LUIS",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

@@ -15,6 +15,8 @@ const SESSION_NAME = /rec:(?:end|stop):(.+)/;
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
 export type RequestFilter = (request: NockDefinition) => boolean;
 
+export { HttpTestPlayback } from './http-test-playback';
+
 export interface HttpTestFileOptions {
   /** path to store captured JSON request/response data (default = `./test/data`, relative to root module). this directory will be created if it does not exist */
   testDataDirectory?: string;
