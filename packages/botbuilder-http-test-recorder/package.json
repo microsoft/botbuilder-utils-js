@@ -1,5 +1,5 @@
 {
-  "name": "botbuilder-http-mock",
+  "name": "botbuilder-http-test-recorder",
   "version": "4.0.0",
   "description": "Middleware for Microsoft Bot Framework to facilitate mocking of HTTP response when testing logic that relies on external services like LUIS",
   "main": "dist/index.js",
@@ -7,10 +7,13 @@
   "scripts": {
     "build": "tsc",
     "test": "mocha --require ts-node/register \"test/**/*.{ts,tsx}\"",
-    "pretest": "npm run build"
+    "pretest": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm --no-git-tag-version version patch"
   },
   "publishConfig": {
-    "tag": "preview"
+    "tag": "preview",
+    "registry": "https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/"
   },
   "repository": {
     "type": "git",
