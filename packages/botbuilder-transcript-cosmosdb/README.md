@@ -1,10 +1,10 @@
-# Botbuilder CosmosDB Transcript Store Middleware
+# Botbuilder Cosmos DB Transcript Store Middleware
 
-In this tutorial you will learn how to quickly integrate CosmosDB transcript logging into your existing NodeJS bot.
+In this tutorial you will learn how to quickly integrate Cosmos DB transcript logging into your existing NodeJS bot.
 
 ## Summary
 
-The CosmosDB Transcript Store is a node module for Bot Framework SDK v4, implementing the [TranscriptStore](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptstore) interface. It is designed to be used as [middleware](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-middleware?view=azure-bot-service-4.0) to log all transcripts to CosmosDB. It can also be used to list, get, and delete the transcripts in CosmosDB.
+The Cosmos DB Transcript Store is a node module for Bot Framework SDK v4, implementing the [TranscriptStore](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptstore) interface. It is designed to be used as [middleware](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-middleware?view=azure-bot-service-4.0) to log all transcripts to [Azure Cosmos DB: SQL API](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction). It can also be used to list, get, and delete the transcripts in Cosmos DB.
 
 Let's begin by defining a few terms you should familiarize yourself with:
 
@@ -16,7 +16,7 @@ Let's begin by defining a few terms you should familiarize yourself with:
 
 > [`channel`](https://docs.microsoft.com/en-us/azure/bot-service/bot-concepts?view=azure-bot-service-4.0) - The communication service being used for your bot, such as Cortana, Skype, Web Chat, Facebook Messenger, Kik, and Slack.
 
-The following are the data access operations supported by the CosmosDB Transcript Store:
+The following are the data access operations supported by the Cosmos DB Transcript Store:
 - `logActivity` - Log an activity to the transcript.
 - `listTranscripts` - List conversations in the channelId.
 - `getTranscriptActivities` - Get activities for a conversation (Aka the transcript).
@@ -24,7 +24,7 @@ The following are the data access operations supported by the CosmosDB Transcrip
 
 ## Prerequisites
 
-- A [CosmosDB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction) account
+- A [Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/introduction) account
 - An existing NodeJS bot, using the [Bot Framework SDK v4](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0)
 
 ## Install
@@ -42,7 +42,7 @@ The following are the data access operations supported by the CosmosDB Transcrip
 >
 > If you do not have `vsts-npm-auth`, you can install it with: `npm install -g vsts-npm-auth --registry https://registry.npmjs.com --always-auth false`
 
-Install the CosmosDB Transcript Store node module:
+Install the Cosmos DB Transcript Store node module:
 
 ```
 npm install botbuilder-transcript-cosmosdb
@@ -56,15 +56,15 @@ npm install documentdb
 
 ## Usage
 
-Now that you have the node modules installed, you can enable CosmosDB transcript logging by adding the following code to your existing bot framework app.
+Now that you have the node modules installed, you can enable Cosmos DB transcript logging by adding the following code to your existing bot framework app.
 
-Add this import statement for the CosmosDB Transcript Store:
+Add this import statement for the Cosmos DB Transcript Store:
 
 ```JavaScript
 const { CosmosDbTranscriptStore} = require('botbuilder-transcript-cosmosdb');
 ```
 
-Add import statements for the Transcript Logging Middleware and CosmosDB Document Client DB, if you don't already have them. For example:
+Add import statements for the Transcript Logging Middleware and Cosmos DB Document Client DB, if you don't already have them. For example:
 
 ```JavaScript
 const { ActivityTypes, BotFrameworkAdapter, TranscriptLoggerMiddleware } = require('botbuilder');
@@ -87,8 +87,8 @@ const client = new DocumentClient(serviceEndpoint, {masterKey});
 Create a `CosmosDBTranscriptStore`. It takes the following parameters:
 
 - `client` - (DocumentClient - required) User provides an already-configured documentdb instance to the transcript store. 
-- `databaseName` - (string - optional) The name of the CosmosDb database where transcripts will be stored (default: botframework).
-- `collectionName`- (string - optional) The name of the CosmosDb collection where transcripts will be stored (default: transcripts).
+- `databaseName` - (string - optional) The name of the Cosmos Db database where transcripts will be stored (default: botframework).
+- `collectionName`- (string - optional) The name of the Cosmos Db collection where transcripts will be stored (default: transcripts).
 - `throughput` - (number - optional) Mumber of request units (RU) to be assigned to the transcripts collection, if it does not already exist.
 - `ttl` - (number - optional) Time-to-live, or the number of seconds that a logged transcript should be kept (default: 0, or does not expire).
 
@@ -98,7 +98,7 @@ Here's an example using the defaults:
 const store = new CosmosDbTranscriptStore(client);
 ```
 
-### Logging Messages to CosmosDB
+### Logging Messages to Cosmos DB
 
 Attaching the middleware to your bot adapter logs every incoming and outgoing event between the user and the bot. Events are written to the transcript store by implicitly calling `logActivity`.  
 
@@ -123,9 +123,9 @@ store.logActivity(context.activity)
 .catch(console.error);
 ```  
 
-### Listing Conversations in CosmosDB
+### Listing Conversations in Cosmos DB
 
-This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the CosmosDB transcript store.
+This middleware also exposes an API, `listTranscripts`, which returns a promise that resolves to a list of all conversation activities for a **channel id** from the Cosmos DB transcript store.
 
 It takes the following parameters:  
 - `channelId` - (String - required) Identifier for the channel of interest.
@@ -138,9 +138,9 @@ store.listTranscripts(<channel_id>)
 .catch(console.error);
 ```
 
-### Get Conversation Activities in CosmosDB
+### Get Conversation Activities in Cosmos DB
 
-This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the CosmosDB transcript store.
+This middleware exposes an API, `getTranscriptActivities`, which returns a promise that resolves to all activities of a conversation from the Cosmos DB transcript store.
 
 It takes the following parameters:
 - `channelId` - (String - required) Identifier for the channel of interest.  
@@ -156,9 +156,9 @@ store.getTranscriptActivities(<channel_id>, <conversation_id>)
 .catch(console.error);
 ```
 
-### Delete Conversation in CosmosDB
+### Delete Conversation in Cosmos DB
 
-This middleware exposes an API, `deleteTranscript`, which deletes a specific conversation and all of its activites from the CosmosDB transcript store.
+This middleware exposes an API, `deleteTranscript`, which deletes a specific conversation and all of its activites from the Cosmos DB transcript store.
 
 It takes the following parameters: 
 - `channelId` -  (String - required) Identifier for the channel of interest.  
@@ -174,7 +174,7 @@ store.deleteTranscript(<channel_id>, <conversation_id>)
 
 ## Schema
 
-When it comes time to analyze the stored transaction logs, it is important to understand the schema of the documents so you can create your queries appropriately. Each document consists of the properties defined in the JSON schema for [`Activity`](https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md), the `start` property (added by the CosmosDB Transcript Store used to indicate whether or not this activity is the first activity in a conversation), and the [standard CosmosDB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-resources#system-vs-user-defined-resources) properties.
+When it comes time to analyze the stored transaction logs, it is important to understand the schema of the documents so you can create your queries appropriately. Each document consists of the properties defined in the JSON schema for [`Activity`](https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md), the `start` property (added by the Cosmos DB Transcript Store used to indicate whether or not this activity is the first activity in a conversation), and the [standard Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-resources#system-vs-user-defined-resources) properties.
 
 Here is an example:
 
