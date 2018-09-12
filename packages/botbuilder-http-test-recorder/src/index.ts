@@ -1,10 +1,9 @@
 import { Middleware, TurnContext } from 'botbuilder-core';
+import * as fs from 'fs-extra';
 import { NockDefinition, recorder } from 'nock';
 import * as path from 'path';
 
-import { createDirIfNotExist } from './create-dir-if-not-exist';
 import { findRootModuleDir } from './find-root-module-dir';
-import { writeFilePromise } from './fs-promise';
 import { HttpTestPlayback } from './http-test-playback';
 
 const LUIS_HOST = /^https:\/\/[^.]+\.api\.cognitive\.microsoft\.com:443/;
@@ -17,7 +16,7 @@ export type RequestTransformer = (request: NockDefinition) => NockDefinition;
 export type RequestFilter = (request: NockDefinition) => boolean;
 
 export interface HttpTestFileOptions {
-  /** path to store captured JSON request/response data (default = `./test/data`, relative to root package.json). this directory will be created if it does not exist */
+  /** path to store captured JSON request/response data (default = `./test/data`, relative to root module). this directory will be created if it does not exist */
   testDataDirectory?: string;
 }
 
@@ -171,8 +170,8 @@ export class HttpTestRecorder implements Middleware {
         .map((req) => this.options.transformRequest.reduce((m, xform) => xform(m), req));
       recorder.clear();
 
-      await createDirIfNotExist(this.options.testDataDirectory);
-      await writeFilePromise(filePath, JSON.stringify(requests, null, 2));
+      await fs.ensureDir(this.options.testDataDirectory);
+      await fs.writeFile(filePath, JSON.stringify(requests, null, 2));
       await context.sendActivity(`⏺️ HTTP recording has stopped.`);
       await context.sendActivity(`⏺️ Requests and responses were written to \`${filePath}\`.`);
     } catch (err) {

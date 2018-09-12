@@ -1,4 +1,4 @@
-import { cleanAll, disableNetConnect, isDone, load } from 'nock';
+import { cleanAll, disableNetConnect, isDone, load, Scope } from 'nock';
 import * as path from 'path';
 
 import { HttpTestFileOptions } from ".";
@@ -25,7 +25,7 @@ export class HttpTestPlayback {
    * @param name Name of the saved session
    * @param disableOutboundHttp Disable all outbound HTTP traffic (i.e. serve only the content loaded in the saved session)
    */
-  load(name: string, disableOutboundHttp = true) {
+  load(name: string, disableOutboundHttp = true): Scope[] {
     if (!isDone()) {
       throw new Error('HttpTestPlayback still has outstanding responses that were never requested!');
     }
