@@ -1,10 +1,20 @@
-# Botbuilder Transcript Store for Application Insights
+# Botbuilder Transcript Store for Application Insights 
+ 
+Learn how to quickly integrate an Azure Application Insights (App Insights) transcript logging into your NodeJS bot. 
 
 ## Summary
+The App Insights Transcript Store is a node module for Bot Framework SDK v4, implementing the [TranscriptStore](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptstore) interface. It is designed to be used as [middleware](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-middleware?view=azure-bot-service-4.0) to log all transcripts to App Insights. The middleware exposes reading and writing abilities on directly from your bot to the transcript store.  
 
-Learn how to quickly integrate an Azure Application Insights (App Insights) transcript logging into your NodeJS bot.  
+Let's begin by defining a few terms you should familiarize yourself with:
 
-The App Insights Transcript Store is a node module for Bot Framework SDK v4, implementing the TranscriptStore interface. It is designed to be used as middleware to log all transcripts to App Insights. The middleware exposes reading and writing abilities on directly from your bot to the transcript store.  
+> [`activity`](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-activity-processing?view=azure-bot-service-4.0) - A single message sent between the user and the bot.
+
+> [`conversation`](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-conversations?view=azure-bot-service-4.0) - A group of activities between the user and the bot with a defined start and stop date. Typically a conversation starts with an initial message from the user.
+
+> [`transcript`](https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md) - A collection of activities and corresponding processing artifacts (such as calls to external APIs such as LUIS, QnA Maker, or AzureSearch) in a defined schema. Transcripts can be stored for subsequent analysis.
+
+> [`channel`](https://docs.microsoft.com/en-us/azure/bot-service/bot-concepts?view=azure-bot-service-4.0) - The communication service being used for your bot, such as Cortana, Skype, Web Chat, Facebook Messenger, Kik, and Slack.
+
 
 The following are the data operations supported by the App Insights Transcript Store:
 - `getTranscriptActivities` - Get activities for a conversation from the transcript.
@@ -16,7 +26,7 @@ The following are the data operations supported by the App Insights Transcript S
 
 ## Prerequisites
 
-- An [App Insights](https://portal.azure.com) deployment  
+- An [App Insights](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/Microsoft.AppInsights) deployment  
 - An existing NodeJS bot, using the [Bot Framework SDK v4](https://dev.botframework.com/)  
 
 ## Install
