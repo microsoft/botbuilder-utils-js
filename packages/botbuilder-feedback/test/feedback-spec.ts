@@ -1,4 +1,4 @@
-import { ActivityTypes, ConversationState, MemoryStorage, TestAdapter } from 'botbuilder';
+import { ActivityTypes, ConversationState, MemoryStorage, TestAdapter } from 'botbuilder-core';
 import { expect } from 'chai';
 
 import { Feedback, FeedbackOptions, FeedbackRecord } from '../src';
