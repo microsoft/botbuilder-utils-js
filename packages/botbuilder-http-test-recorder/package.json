@@ -17,10 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Azure/botbuilder-utils-js.git"
+    "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/botbuilder-utils-js/issues"
+    "url": "https://github.com/Microsoft/botbuilder-utils-js/issues"
   },
   "keywords": [
     "botbuilder",
