@@ -6,6 +6,8 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
+trigger: none
+
 steps:
 - task: NodeTool@0
   inputs:
