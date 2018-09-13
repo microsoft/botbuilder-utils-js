@@ -78,7 +78,7 @@ const serviceEndpoint = '<YOUR-SERVICE-ENDPOINT>';
 const masterKey = '<YOUR-MASTER-KEY>';
 ```
 
-Create a DocumentClient using your configuration settings. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store. For example:
+Create a `DocumentClient` using your configuration settings. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store. For example:
 
 ```JavaScript
 const client = new DocumentClient(serviceEndpoint, {masterKey});
