@@ -67,7 +67,7 @@ This class does _not_ implement `deleteTranscript()` due to the immutable nature
 
 > Learn more about [App Insights Analytics](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-analytics).
 
-Each transcript activity is stored in App Insights as a `customEvent`. Because [customEvent properties](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#properties) are always `string` values activities are stored in a special way:
+Each transcript activity is stored in App Insights as a `customEvent`. Because [customEvent properties](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics#properties) are always `string` values, activities are stored in a special way:
 
 * All top-level string values of the activity are stored verbatim as filterable properties
 * Any non-string values of the activity (arrays, complex objects, number, boolean, Date) are stored as JSON-encoded strings. These property names are prefixed by a `_` character.
