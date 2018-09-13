@@ -62,34 +62,51 @@ Now that you have the node modules installed, you can enable App Insights transc
 
 First, add this import statement for the App Insights Transcript Store:
 
-```TypeScript
-import { AppInsightsTranscriptStore } from 'botbuilder-transcript-app-insights';
+```JavaScript
+const { AppInsightsTranscriptStore } = require('botbuilder-transcript-app-insights');
 ```
 
 Next, import the App Insights `TelemetryClient`:
 
-```TypeScript
-import { TelemetryClient } from 'applicationinsights'; 
+```JavaScript
+const { TelemetryClient } = require('applicationinsights'); 
 ```
 
 Add the following configuration settings either to your code or a configuration file, making sure to replace APPLICATION-ID, INSTRUMENTATION-KEY and API-KEY:
 
-```TypeScript
+```JavaScript
 const appInsightsIKey = '<INSTRUMENTATION-KEY>';
 const appInsightsId = '<APPLICATION-ID>';
-const appInsightsApiKey = '<API-KEY>'
+const appInsightsApiKey = '<API-READ-KEY>'
+```  
+
+Create an App Insight `TelemetryClient` using your configuration settings. This allows the user to configure things like keys, endpoints, and reconnect policies outside of the scope of the transcript store. For example:
+
+```JavaScript
+const client = new TelemetryClient(appInsightsIKey);
+```  
+
+Create a `AppInsightsTranscriptStore`. It takes the following parameters:  
+
+- `client` - (TelemetryClient - required) User provides an already-configured App Insights telemetry client instance to the transcript store.  
+- `readOptions` - (AppInsightsTranscriptStoreOptions - optional) Configure transcript store for reading (only if using `getTranscriptActivities` and `listTranscripts` functions)  
+    - `applicationId` - (string - required) API Access application id 
+    - `readKey`- (string - required) API Access key with 'Read telemetry' permissions.
+
+
+Here's an example using the defaults:
+
+```JavaScript
+const store = new AppInsightsTranscriptStore(client, { applicationId: appInsightsId, readKey: appInsightsApiKey});
 ```
 
 ### Logging Messages to App Insights
 Attaching the middleware to your bot adapter logs every incoming and outgoing events between the user and the bot. Events are written to the transcript Store by implicitly calling the `logActivity`.  
 
+Update your bot adapter to use a [TranscriptLoggerMiddleware](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/transcriptloggermiddleware), using the store, by adding the middleware to your adapter, for example:
 
-Add the logging middleware to your adapter, for example:
-
-```TypeScript
-const client = new TelemetryClient(appInsightsIKey);
-const loggerStore = new AppInsightsTranscriptStore(client, { applicationId: appInsightsId });
-const logger = new TranscriptLoggerMiddleware(loggerStore);
+```JavaScript
+const logger = new TranscriptLoggerMiddleware(store);
 const adapter = new BotFrameworkAdapter({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD,
@@ -97,10 +114,10 @@ const adapter = new BotFrameworkAdapter({
 adapter.use(logger);
 ```   
 
-Explicitly calling `logActivity` in your bot code can be achieved as follows:  
+Explicitly calling `logActivity` in your bot code can be achieved as well, for example:  
 
-```TypeScript
-loggerStore.logActivity(context.activity)
+```JavaScript
+store.logActivity(context.activity)
 .then((resp) => {
   ...
 })
@@ -112,12 +129,12 @@ This middleware exposes an API, `getTranscriptActivities`, which returns a promi
 
 It takes the following as parameters:  
 - `channelId` -  (String - required) Identifier for the channel of interest.  
-- `conversationId` - (String - required)Identifier of the conversation of interest.  
-- `continuationToken` - (String - Optional) Continuation Token  
+- `conversationId` - (String - required) Identifier of the conversation of interest.  
+- `continuationToken` - (String - Optional) Opaque token returned by App Insights with the first set of results. Token is passed back on next request to get more data.
 - `startDate` - (DateObject - Optional) ISO Date object indicating a start date to scan for conversations from.  
 
-```Typescript
-loggerStore.getTranscriptActivities(<channel_id>, <conversation_id>)
+```JavaScript
+store.getTranscriptActivities(<channel_id>, <conversation_id>)
 .then((resp) => {
   ...
 })
@@ -130,8 +147,8 @@ This middleware also exposes another API, `listTranscripts`, which returns a pro
 It takes the following as parameters:  
 - `channelId` -  (String - required) Identifier for the channel of interest.  
 
-```TypeScript
-loggerStore.listTranscripts(<channel_id>)
+```JavaScript
+store.listTranscripts(<channel_id>)
 .then((resp) => {
   ...
 })
@@ -146,11 +163,54 @@ It takes the following as parameters:
 - `channelId` -  (String - required) Identifier for the channel of interest.  
 - `conversationId` - (String - required)Identifier of the conversation of interest. 
 
-```TypeScript
-loggerStore.deleteTranscript(<channel_id>, <conversation_id>)
+```JavaScript
+store.deleteTranscript(<channel_id>, <conversation_id>)
 .then((resp) => {
   ...
 })
 .catch(console.error); 
+```  
+
+## Schema
+
+When it comes time to analyze the stored transaction logs, it is important to understand the schema of the documents so you can create your queries appropriately. Each document consists of the properties defined in the JSON schema for [`Activity`](https://github.com/Microsoft/BotBuilder/blob/hub/specs/transcript/transcript.md), the `start` property (added by the App Insights Transcript Store used to indicate whether or not this activity is the first activity in a conversation), and the [standard App Insights](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-api-custom-events-metrics) custom events.
+
+Here is an example:
+
+```JSON
+"activity": {
+	"type": "conversationUpdate",
+	"membersAdded": [
+		{
+			"id": "default-bot",
+			"name": "Bot"
+		}
+	],
+	"id": "9b7jb8lf4258",
+	"channelId": "emulator",
+	"timestamp": "2018-09-05T15:35:14.627Z",
+	"localTimestamp": "2018-09-05T11:35:14-04:00",
+	"recipient": {
+		"id": "default-bot",
+		"name": "Bot"
+	},
+	"conversation": {
+		"id": "a2gigibf515i"
+	},
+	"from": {
+		"id": "default-user",
+		"name": "User",
+		"role": "user"
+	},
+	"serviceUrl": "http://localhost:59426"
+},
+"start": true,
+"id": "beca96ae-8101-6bd6-8d27-349a2844e581",
+"_rid": "VOgVAP9F8HMDAAAAAAAAAA==",
+"_self": "dbs/VOgVAA==/colls/VOgVAP9F8HM=/docs/VOgVAP9F8HMDAAAAAAAAAA==/",
+"_etag": "\"0000d868-0000-0000-0000-5b8ff7b30000\"",
+"_attachments": "attachments/",
+"_ts": 1536161715
 ```
+
 
