@@ -9,7 +9,7 @@ This directory contains sample code that can be used to build a [TranscriptLogge
 
 ## Install
 
-Because this package is supplied as sample code, it is not available on npm and it comes with no guarantee of support or updates. To use this software in your own app:
+Because this package is provided as sample code, it is not available on npm and it comes with no guarantee of support or updates. To use this software in your own app:
 
 1. clone this repo
 2. `cd botbuilder-utils-js/packages/botbuilder-transcript-cosmosdb`
