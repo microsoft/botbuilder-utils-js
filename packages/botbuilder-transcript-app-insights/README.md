@@ -57,6 +57,8 @@ constructor(client: TelemetryClient, readOptions?: AppInsightsTranscriptStoreOpt
 * `readOptions.applicationId` (string): application id for API access
 * `readOptions.readKey` (string): API access key with _Read telemetry_ permissions
 
+> Learn how to [get your API key and Application ID](https://dev.applicationinsights.io/documentation/Authorization/API-key-and-App-ID)
+
 This class implements the [TranscriptStore](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/transcriptLogger.ts#L154-L183) interface, which includes functions to support retrieval of transcripts and activities.
 
 This class does _not_ implement `deleteTranscript()` due to the immutable nature of App Insights records. Calling this function will result in a thrown `Error`.
