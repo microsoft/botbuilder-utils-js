@@ -1,23 +1,26 @@
 {
-  "name": "botbuilder-http-mock",
-  "version": "4.0.0",
+  "name": "botbuilder-http-test-recorder",
+  "version": "4.0.5",
   "description": "Middleware for Microsoft Bot Framework to facilitate mocking of HTTP response when testing logic that relies on external services like LUIS",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "mocha --require ts-node/register \"test/**/*.{ts,tsx}\"",
-    "pretest": "npm run build"
+    "pretest": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm --no-git-tag-version version patch"
   },
   "publishConfig": {
-    "tag": "preview"
+    "tag": "preview",
+    "registry": "https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Azure/botbuilder-utils-js.git"
+    "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
   },
   "bugs": {
-    "url": "https://github.com/Azure/botbuilder-utils-js/issues"
+    "url": "https://github.com/Microsoft/botbuilder-utils-js/issues"
   },
   "keywords": [
     "botbuilder",
@@ -32,10 +35,20 @@
   "devDependencies": {
     "@types/chai": "^4.1.4",
     "@types/mocha": "^5.2.5",
+    "botbuilder-core": "^4.0.1-aicat1.4",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "ts-node": "^7.0.0",
     "tslint": "^5.11.0",
     "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/nock": "^9.3.0",
+    "fs-extra": "^7.0.0",
+    "nock": "^9.6.1"
+  },
+  "peerDependencies": {
+    "botbuilder-core": "^4.0.1-aicat1.4"
   }
 }

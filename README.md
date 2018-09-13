@@ -5,6 +5,7 @@
 1. [botbuilder-transcript-cosmosdb](./packages/botbuilder-transcript-cosmosdb)
 2. [botbuilder-transcript-app-insights](./packages/botbuilder-transcript-app-insights)
 3. [botbuilder-feedback](./packages/botbuilder-feedback)
+3. [botbuilder-http-test-recorder](./packages/botbuilder-http-test-recorder)
 
 ## Contributing
 
