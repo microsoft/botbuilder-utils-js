@@ -4,7 +4,7 @@ This directory contains sample code that can be used to build a [TranscriptLogge
 
 ## Prerequisites
 
-- An [App Insights](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/Microsoft.AppInsights) deployment  
+- An [App Insights](https://docs.microsoft.com/en-us/azure/application-insights/app-insights-nodejs-quick-start) deployment  
 - A NodeJS bot using [Bot Framework v4](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0)
 
 ## Install
