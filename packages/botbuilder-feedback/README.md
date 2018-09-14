@@ -64,7 +64,7 @@ When `Feedback.sendFeedbackActivity(...)` is invoked, a message is automaticaly 
 
 ![sample feedback buttons](images/feedback-sample-66.png)
 
-_The user may click or type their response. If anything besides the available options is typed, the feedback is considered ignored_
+_The user may click or type their response. If anything other than the available options is typed, the feedback is considered ignored_
 
 ## API
 
