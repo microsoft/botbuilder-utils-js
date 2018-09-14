@@ -116,7 +116,7 @@ _Configure the test recorder to capture LUIS requests_
 
 * `testRegion`: The live HTTP request will be stored as if it hit this region. Your unit tests should be configured to target this region.
 * `testKey`: The live HTTP request will be be stored as if this key was used. It should not be a real key, and your unit tests should be configured to use the same value.
-* _returns_ the HttpTestRecorder instance
+* _returns_ the `HttpTestRecorder` instance
 
 ```TypeScript
 captureAzureSearch(testService = 'testsearch'): this
@@ -125,7 +125,7 @@ captureAzureSearch(testService = 'testsearch'): this
 _Configure the test recorder to capture Azure Search requests_
 
 * `testService`: The live HTTP request will be stored as if it hit this search service. It should not be a real service name, and your unit tests should be configured to use the same value.
-* _returns_ the HttpTestRecorder instance
+* _returns_ the `HttpTestRecorder` instance
 
 ```TypeScript
 createPlayback(): HttpTestPlayback
