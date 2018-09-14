@@ -26,12 +26,12 @@ export interface HttpTestRecorderOptions extends HttpTestFileOptions {
   /** stored requests/responses will be passed through these functions. use to remove secrets or change parts of the url or path */
   transformRequest?: RequestTransformer[];
 
-  /** only requests matching all of these filter will be stored */
+  /** only requests matching all of these filters will be stored */
   requestFilter?: RequestFilter[];
 }
 
 /**
- * Middleware to support automatic collection and cleansing of HTTP requests/responses for external services like LUIS.
+ * Middleware to support automatic storage and cleansing of HTTP requests/responses for external services like LUIS.
  * Stored HTTP response can be loaded into your unit tests to validate your bot locig without requiring actual network calls to supporting services.
  */
 export class HttpTestRecorder implements Middleware {
@@ -70,6 +70,7 @@ export class HttpTestRecorder implements Middleware {
         return this.startRecording(context);
       case 'rec:clear':
       case 'rec:reset':
+      case 'rec:cancel':
         return this.clearRecording(context);
       case 'rec:stop':
       case 'rec:end':
