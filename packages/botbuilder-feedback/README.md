@@ -28,7 +28,9 @@ Because this package is supplied as sample code, it is not available on npm and 
 > JavaScript example is shown below, but this package also works great in TypeScript projects.
 
 ```JavaScript
-const { BotFrameworkAdapter, ConsoleTranscriptLogger, ConversationState, MemoryStorage, TranscriptLoggerMiddleware } = require('botbuilder');
+const {
+  ActivityTypes, BotFrameworkAdapter, ConsoleTranscriptLogger,
+  ConversationState, MemoryStorage, TranscriptLoggerMiddleware } = require('botbuilder');
 const { Feedback } = require('botbuilder-feedback');
 
 // configure middleware
