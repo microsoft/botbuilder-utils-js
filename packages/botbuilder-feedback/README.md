@@ -1,176 +1,268 @@
-# Botbuilder Feedback Collection Middleware
+# Feedback Collection Middleware for Microsoft Bot Framework
 
-In this tutorial you will learn how to quickly add the ability for users to provide feedback for your bot responses into your existing NodeJS bot.
+This directory contains sample code that can be used to build a feedback-request mechanism for your bot. For example, a question-and-answer (QnA) bot may choose to prompt users to rate the quality of answers.
 
-## Summary
-
-The Feedback Collection Middleware is a node module for Bot Framework SDK v4 that gives users the ability to provide feedback for the bot responses. For example, they can specify that a particular reply is 'good' or 'bad'. They can also add free-form feedback text if they want. The bot developer also has the ability to customize the interaction, such as specifying the list of feedback options that the user can select.
-
-![running](images/default-feedback-annotated-resized-66.png)
-
-It does this by creating a `Feedback` bot middleware class that can be registered with the `BotFrameworkAdapter`, giving the bot developer the ability to modify the conversation flow. When processing the user's activity, the bot developer can decide to add a customizable list of buttons (or CardActions) to the bot's reply back to the user. This feedback is stored in the transcript log and can be analyzed later to improve the bot responses.
-
-The following is the operation supported by the Feedback Collection Middleware:
-- `requestFeedback` - Returns a message that includes feedback prompts in the form of Suggested Actions.
+When combined with the [TranscriptLogger](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/transcriptLogger.ts) middleware and an appropriate transcript store (e.g. [Cosmos DB](../botbuilder-transcript-cosmosdb) or [Application Insights](../botbuilder-transcript-app-insights)) this tool can help drive quality-assurance (QA) analytics reporting.
 
 ## Prerequisites
 
-- An existing NodeJS bot, using the [Bot Framework SDK v4](https://dev.botframework.com/)
+- A NodeJS bot using [Bot Framework v4](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0)
+- Your bot should be configured for [ConversationState](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-v4-state?view=azure-bot-service-4.0&tabs=js)
+- For optimal use, your bot should be configured to store transcript logs to an analytics database like [Cosmos DB](../botbuilder-transcript-cosmosdb) or [Application Insights](../botbuilder-transcript-app-insights)
 
 ## Install
 
-> This project uses a private npm repo. For access, please contact chstone.
->
-> Create a file called **.npmrc** in your project root directory and add the following to it:
->
-> ```
-> registry=https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/
-> always-auth=true
-> ```
->
-> Run the following in your project root directory: `vsts-npm-auth -config .npmrc`.
->
-> If you do not have `vsts-npm-auth`, you can install it with: `npm install -g vsts-npm-auth --registry https://registry.npmjs.com --always-auth false`
+Because this package is supplied as sample code, it is not available on npm and it comes with no guarantee of support or updates. To use this software in your own app:
 
-Install the Feedback Collection Middleware node module:
+1. clone this repo
+2. `cd botbuilder-utils-js/packages/botbuilder-feedback`
+3. `npm install`
+4. `cd {your-app}`
+5. `npm install file:path-to-botbuilder-utils-js/packages/botbuilder-feedback`
+6. _Recommended_: follow install steps for either [botbuilder-transcript-cosmosdb](../botbuilder-transcript-cosmosdb) or [botbuilder-transcript-app-insights](../botbuilder-transcript-app-insights) so that you can query feedback results.
 
-`npm install botbuilder-feedback@preview`
+> To support CI and other automation tasks, you may also choose to publish this package on a private npm repo, or simply copy the code/dependencies into your own app.
 
 ## Usage
 
-Now that you have the node module installed, you can enable feedback collection by adding the following code to your existing bot framework app.
-
-Add this import statement for the Feedback Collection Middleware (some of the optional constructor arguments, described later on, will also require `FeedbackAction` and `Message` from the same package):
+> JavaScript example is shown below, but this package also works great in TypeScript projects.
 
 ```JavaScript
+const { BotFrameworkAdapter, ConsoleTranscriptLogger, ConversationState, MemoryStorage, TranscriptLoggerMiddleware } = require('botbuilder');
 const { Feedback } = require('botbuilder-feedback');
-```
 
-You will need a [`ConversationState`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/conversationstate), if you don't already have one. For this example we create it using [`MemoryStorage`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-core-extensions/memorystorage), but for more robust applications you may want a more durable storage such as [`TableStorage`](https://docs.microsoft.com/en-us/javascript/api/botbuilder-azure/tablestorage):
+// configure middleware
+const logstore = new ConsoleTranscriptLogger(); // upgrade this to a persistent store like Cosmos DB or Appplication Insights
+const stateStorage = new MemoryStorage(); // only use MemoryStorage in dev
+const conversationState = new ConversationState(stateStorage);
+const feedback = new Feedback(conversationState);
+const logger = new TranscriptLoggerMiddleware(logstore);
 
-```JavaScript
-const conversationState = new ConversationState(new MemoryStorage());
-```
-
-Next you will need a `Feedback` instance. It takes the following as parameters:
-
-- `conversationState` - (ConversationState - required) The instance of ConversationState used by your bot
-- `feedbackActions` - (FeedbackAction[] - optional) Custom feedback choices for the user. Default values are: `['👍 good answer', '👎 bad answer']`
-- `feedbackResponse` - (Message - optional) Message to show when a user provides some feedback. Default value is `'Thanks for your feedback!'`
-- `dismissAction` - (FeedbackAction - optional) Text to show on button that allows user to hide/ignore the feedback request. Default value is `'dismiss'`
-- `promptFreeForm` - (boolean | string[] - optional) Optionally enable prompting for free-form comments for all or select feedback choices (free-form prompt is shown after user selects a preset choice)
-- `freeFormPrompt` - (Message - optional) - Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
-
-Here's an example using the defaults:
-
-```JavaScript
-const feedback = new Feedback({ conversationState });
-```
-
-Update your bot adapter to use feedback, for example:
-
-```JavaScript
+// create the bot
 const adapter = new BotFrameworkAdapter({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD,
-  }).use(conversationState, feedback);
+  }).use(logger, conversationState, feedback);
+
+// call for feedback in your bot logic
+const logic = async (context) => {
+  if (context.activity.type === ActivityTypes.Message) {
+      if (context.activity.text.toLowerCase().startsWith('what is the meaning of life')) {
+        await Feedback.sendFeedbackActivity(context, '42');
+      } else {
+        await context.sendActivity(`You said '${context.activity.text}'`);
+      }
+    }
+};
+
+/* adapter.processActivity(...) implementation omitted */
 ```
 
-Now you are ready to use it to enable feedback collection, for example:
+When `Feedback.sendFeedbackActivity(...)` is invoked, a message is automaticaly sent to the user showing feedback choices with the answer:
 
-```JavaScript
-const logic = (context: TurnContext) => {
-  if (context.activity.text === 'what?') {
+![sample feedback buttons](images/feedback-sample-66.png)
 
-    // bot will show text with 2 suggested action buttons (good answer / bad answer)
-    // if user clicks a button, the response is captured as a trace activity, along with original question and original bot response.
-    // if user does not click a button, normal bot processing occurs
-    const message = Feedback.requestFeedback(context, 'the answer is FOO');
-    await context.sendActivity(message);
-  } else {
-    await context.sendActivity(`You said '${context.activity.text}`);
-  }
-};
+_The user may click or type their response. If anything besides the available options is typed, the feedback is considered ignored_
+
+## API
+
+### Feedback (class)
+
+```TypeScript
+constructor(conversationState: ConversationState, options?: FeedbackOptions)
+```
+
+* `conversationState`: The instance of `ConversationState` used by your bot
+* `options`: Optional configuration to override default prompts and behavior
+* `options.feedbackActions` (FeedbackAction): Custom feedback choices for the user. Default values are: `['👍 good answer', '👎 bad answer']`
+* `options.feedbackResponse` (Message): Message to show when a user provides some feedback. Default value is `'Thanks for your feedback!'`
+* `options.dismissAction` (FeedbackAction): Text to show on button that allows user to hide/ignore the feedback request. Default value is `'dismiss'`
+* `options.promptFreeForm` (boolean | string[]): Optionally enable prompting for free-form comments for all or select feedback choices (free-form prompt is shown after user selects a preset choice)
+* `options.freeFormPrompt` (Message): Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
+
+```TypeScript
+static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity>
+```
+
+_Create an Activity object with feedback choices that can be sent to the user_
+
+* `context`: Current bot TurnContext
+* `textOrActivity`: message sent to the user for which feedback is being requested. If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
+* `type` optional type so that feedback responses can be grouped for analytics purposes
+* _returns_ An `Activity` object containing the desired `message` and `suggestedAction` parameters
+
+```TypeScript
+static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, type?: string): Partial<Activity>
+```
+
+_Send an Activity object with feedback choices to the user_
+
+* `context`: Current bot TurnContext
+* `textOrActivity`: message sent to the user for which feedback is being requested. If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
+* `type` optional type so that feedback responses can be grouped for analytics purposes
+* _returns_ The promise from a call to `context.sendActivity(...)`. Don't forget to `await` this!
+
+This class implements the [Middleware](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/middlewareSet.ts#L14-L16) interface.
+
+### Other Types
+
+```TypeScript
+export type FeedbackAction = string | CardAction;
+export type Message = string | { text: string, speak?: string };
 ```
 
 ## Customize
 
-Now that you have the basics working, let's see how to customize `Feedback`. Let's do this by taking another look at each of the optional constructor parameters.
+### Customize feedbackActions
 
-As you go through the various examples, note that you can construct `Feedback` with zero or more of these optional parameters. Here's an example using all of them (note that `conversationState` is required):
+`feedbackOption` is a choice that a user can click or type. Specify one or more of these in your configuration parameters to customize the message. A FeedbackAction may be either a `string` or [CardAction](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction)
+
+_Examples:_
 
 ```JavaScript
-const feedback = new Feedback({ conversationState, feedbackActions, feedbackResponse, dismissAction, promptFreeForm, freeFormPrompt });
+// using simple strings
+new Feedback(conversationState, {
+  feedbackActions: ['✔ Correct', '✖ Incorrect'],
+    // OR: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+    // OR: ['Not at all helpful', 'Slightly helpful', 'Somewhat helpful', 'Very helpful', 'Extremely helpful'];
+});
+
+// or use advanced card actions (e.g. to support PostBack)
+new Feedback(conversationState, {
+  feedbackActions: [
+    { title: "😩 Poor", type: ActionTypes.PostBack, value: { response: 0 }},
+    { title: "😐 Good", type: ActionTypes.PostBack, value: { response: 1 }},
+    { title: "😄 Excellent", type: ActionTypes.PostBack, value: { response: 2 }},
+  ],
+});
 ```
 
-### feedbackActions
+> `PostBack` type supports arbitrary `value` payload.
 
-By setting this you can control the feedback choices for the user. The default values are: `['👍 good answer', '👎 bad answer']`. The data type is a `FeedbackAction` array, where `FeedbackAction` can either be a string or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
+### Customize feedbackResponse
 
-For a string array, here are some examples:
+`feedbackResponse` is the message that appears when a user provides some feedback. The value may be either a `string` or an object giving text along with a speach hint.
+
+_Examples:_
 
 ```JavaScript
-const feedbackActions = ['✔ Correct', '✖ Incorrect'];
-const feedbackActions = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-const feedbackActions = ['Not at all helpful', 'Slightly helpful', 'Somewhat helpful', 'Very helpful', 'Extremely helpful'];
-const feedbackActions = ['Strongly disagree', 'Somewhat disagree', 'Somewhat agree', 'Strongly agree'];
+new Feedback(conversationState, {
+  feedbackResponse: 'Thanks a million!',
+    // OR: { text: 'Thanks a million!', speak: 'Thanks a <emphasis level=\"strong\">million</emphasis>!' }
+});
 ```
 
-For a CardAction array, here is an example:
+### Customize dismissAction
+
+`dismissAction` is the value on the button that allows users to hide/ignore the feedback request. The default value is `'dismiss'`. This value may be either a `string` or [CardAction](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction)
+
+_Examples:_
 
 ```JavaScript
-const feedbackActions = [
-    { title: "😩 Poor", type: ActionTypes.ImBack, value: "😩 Poor" },
-    { title: "😟 Fair", type: ActionTypes.ImBack, value: "😟 Fair" },
-    { title: "😐 Good", type: ActionTypes.ImBack, value: "😐 Good" },
-    { title: "😊 Very Good", type: ActionTypes.ImBack, value: "😊 Very Good" },
-    { title: "😄 Excellent", type: ActionTypes.ImBack, value: "😄 Excellent" },
-];
+new Feedback(conversationState, {
+  dismissAction: 'no thanks!',
+});
 ```
 
-### feedbackResponse
+### Customize promptFreeForm
 
-By setting this you can control the message that appears when a user provides some feedback. The default value is `'Thanks for your feedback!'`. The data type is a `Message`, where `Message` can either be a single string or a `text` string and a `speak` string (the speak string can be spoken if the channel supports it).
+Set `promptFreeForm` to `true` to allow users to give open-ended text responses after they make a feedback selection. Alternatively, set `promptFreeForm` to a string array in order to specify which feedback choices can trigger a free-form prompt.
 
-Here are some examples:
-
+_Examples_
 ```JavaScript
-const feedbackResponse = 'Thanks a million!';
-const feedbackResponse = {text: 'Thanks a million!', speak: 'Thanks a <emphasis level=\"strong\">million</emphasis>!' };
+new Feedback(conversationState, {
+  promptFreeForm: true,
+  // OR: promptFreeForm = ['Strongly disagree'],
+});
 ```
 
-### dismissAction
+### Custommize freeFormPrompt
 
-By setting this you can control the text to show on the button that allows users to hide/ignore the feedback request. The default value is `'dismiss'`. The data type is a `FeedbackAction`, where `FeedbackAction` can either be a string or a [`CardAction`](https://docs.microsoft.com/en-us/javascript/api/botframework-schema/cardaction).
+`freeFormPrompt` is the message shown to ask the user for open-ended text when `promptFreeForm` is enabled. The value may be either a `string` or an object giving text along with a speach hint.
 
-For a string, here is an example:
+_Example_
 
 ```JavaScript
-const dismissAction = "ignore!!!";
+new Feedback(conversationState, {
+  promptFreeForm: true,
+  freeFormPrompt: 'What else would you like to mention?',
+});
 ```
 
-### promptFreeForm
+## Schema
 
-By setting this you can control whether or not free-form comments are allowed for all or select feedback choices (free-form prompt is shown after user selects a preset choice). The default value is false. The data type is a boolean or a string array (used to specify for which choices to allow free-form feedback).
+When feedback is collected, a `trace` activity is sent by the bot. Configure your bot to use the [TranscriptLogger](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/transcriptLogger.ts) middleware and an appropriate transcript store (e.g. [Cosmos DB](../botbuilder-transcript-cosmosdb) or [Application Insights](../botbuilder-transcript-app-insights) to store and query feedback activities.
 
-For a boolean, here is an example:
+The trace `value` contains information about the feedback
 
-```JavaScript
-const promptFreeForm = true;
-```
+* `request`: activity sent by the user that triggered the feedback request
+* `response`: bot text for which feedback is being requested
+* `feedback`: user's feedback selection
+* `comments`: (if enabled) user's free-form comments
+* `type`: (if enabled) type of feedback recorded, for analytics queries
 
-For a string array, here is an example (free-form prompt is shown for this particular selection):
+_Example feedback trace:_
 
-```JavaScript
-const promptFreeForm = ['Strongly disagree'];
-```
-
-### freeFormPrompt
-
-By setting this you can control the message to show when `promptFreeForm` is enabled. The default value is `'Please add any additional comments in the chat'`.  The data type is a `Message`, where `Message` can either be a single string or a `text` string and a `speak` string (the speak string can be spoken if the channel supports it).
-
-Here is an example:
-
-```JavaScript
-const freeFormPrompt = 'You strongly disagree? Please provide additional feedback';
+```JSON
+{
+  "type": "trace",
+  "serviceUrl": "http://localhost:61495",
+  "channelId": "emulator",
+  "from": {
+    "id": "default-bot",
+    "name": "Bot"
+  },
+  "conversation": {
+    "id": "4b03khhi12i2"
+  },
+  "recipient": {
+    "id": "default-user",
+    "name": "User",
+    "role": "user"
+  },
+  "replyToId": "chf7mhn9ihb",
+  "label": "User Feedback",
+  "valueType": "https://www.example.org/schemas/feedback/trace",
+  "value": {
+    "request": {
+      "type": "message",
+      "text": "what is the meaning of life?",
+      "from": {
+        "id": "default-user",
+        "name": "User",
+        "role": "user"
+      },
+      "locale": "en-US",
+      "textFormat": "plain",
+      "timestamp": "2018-09-14T16:11:50.622Z",
+      "channelData": {
+        "clientActivityId": "1536941498773.2831200917907295.0"
+      },
+      "entities": [
+        {
+          "type": "ClientCapabilities",
+          "requiresBotState": true,
+          "supportsTts": true,
+          "supportsListening": true
+        }
+      ],
+      "id": "1eih4fdj8gceb",
+      "channelId": "emulator",
+      "localTimestamp": "2018-09-14T12:11:50-04:00",
+      "recipient": {
+        "id": "default-bot",
+        "name": "Bot"
+      },
+      "conversation": {
+        "id": "4b03khhi12i2"
+      },
+      "serviceUrl": "http://localhost:61495"
+    },
+    "response": "42",
+    "feedback": "👍 good answer",
+    "comments": null
+  },
+  "name": "Feedback",
+  "id": null
+}
 ```

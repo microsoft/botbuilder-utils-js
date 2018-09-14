@@ -22,7 +22,7 @@ Because this package is provided as sample code, it is not available on npm and 
 
 ## Usage
 
-> JavaScript example are shown below, but this package also works great in TypeScript projects.
+> JavaScript example is shown below, but this package also works great in TypeScript projects.
 
 ```JavaScript
 const { BotFrameworkAdapter, TranscriptLoggerMiddleware } = require('botbuilder');
