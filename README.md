@@ -1,7 +1,5 @@
 # Botbuilder Utils for JavaScript
 
-## Summary
-
 This repo contains sample code that can be used to enhance a __v4 Microsoft Bot Framework__ bot running __NodeJS__. 
 
 _Packages come with no guarantee of support or updates._
