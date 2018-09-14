@@ -66,7 +66,6 @@ describe('My bot', () => {
     const adapter = new TestAdapter(async (context) => {
       // logic under test goes here
       const results = luisRecognizer.recognize(context);
-      lui
       const intent = LuisRecognizer.topIntent(results);
       if (intent === 'None') {
         await context.sendActivity('I do not understand');
