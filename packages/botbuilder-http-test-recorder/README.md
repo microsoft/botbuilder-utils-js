@@ -106,7 +106,7 @@ constructor(options?: HttpTestRecorderOptions)
 
 > Learn more about [scope filtering](https://www.npmjs.com/package/nock#scope-filtering)
 >
-> If you are configuring a new external service, and you're not sure what to use for `requestFilter` or `transformRequest`, reference the implementation of [`configureLuis`](https://github.com/Microsoft/botbuilder-utils-js/blob/docs/readme/packages/botbuilder-http-test-recorder/src/index.ts#L88-L103)
+> If you are configuring a new external service, and you're not sure what to use for `requestFilter` or `transformRequest`, reference the implementation of [`captureLuis`](https://github.com/Microsoft/botbuilder-utils-js/blob/docs/readme/packages/botbuilder-http-test-recorder/src/index.ts#L88-L103)
 
 ```TypeScript
 captureLuis(testRegion = 'westus', testAppId = 'testAppId', testKey = 'testKey'): this
