@@ -26,7 +26,7 @@ export interface HttpTestRecorderOptions extends HttpTestFileOptions {
   /** stored requests/responses will be passed through these functions. use to remove secrets or change parts of the url or path */
   transformRequest?: RequestTransformer[];
 
-  /** only requests matching all of these filter will be stored */
+  /** only requests matching all of these filters will be stored */
   requestFilter?: RequestFilter[];
 }
 
@@ -70,6 +70,7 @@ export class HttpTestRecorder implements Middleware {
         return this.startRecording(context);
       case 'rec:clear':
       case 'rec:reset':
+      case 'rec:cancel':
         return this.clearRecording(context);
       case 'rec:stop':
       case 'rec:end':

@@ -2,11 +2,11 @@
 
 ## Summary
 
-This repo contains sample code that can be used to enhance a v4 Microsoft Bot Framework bot running NodeJS.
+This repo contains sample code that can be used to enhance a v4 Microsoft Bot Framework bot running NodeJS. Packages come with no guarantee of support or updates.
 
 ## Packages
 
-The following packages are provided as sample code only, and come with no guarantee of support or updates. Packages are not published to npm; to use them in your bot, follow the instructions in the respective READMEs:
+The following packages are provided as sample code only, and so are not published to npm; to use them in your bot, follow the instructions in the respective READMEs:
 
 1. [botbuilder-transcript-cosmosdb](./packages/botbuilder-transcript-cosmosdb)
 2. [botbuilder-transcript-app-insights](./packages/botbuilder-transcript-app-insights)
