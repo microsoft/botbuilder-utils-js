@@ -14,7 +14,8 @@ const TRACE_LABEL = 'User Feedback';
 
 export type Message = string | { text: string, speak?: string };
 
-const feedbackActionText = (action: FeedbackAction) => typeof action === 'string' ? action : action.text;
+const feedbackAction = (action: FeedbackAction) => typeof action === 'string' ? action : feedbackValue(action);
+const feedbackValue = (activity: { text?: string, value?: any }) => activity.value || activity.text;
 
 /** StoreItem to track feedback state */
 export interface FeedbackState extends StoreItem {
@@ -53,11 +54,11 @@ export interface FeedbackRecord {
   /** activity sent by the user that triggered the feedback request */
   request: Partial<Activity>;
 
-  /** bot text for which feedback is being requested */
-  response: string;
+  /** bot text or value for which feedback is being requested */
+  response: string | any;
 
   /** user's feedback selection */
-  feedback: string;
+  feedback: string | any;
 
   /** user's free-form comments, if enabled */
   comments: string;
@@ -85,7 +86,7 @@ export class Feedback implements Middleware {
     state.feedback = { // this should be put on the context object. onTurn should move it from context to state after await next()
       type,
       request: context.activity,
-      response: typeof textOrActivity === 'string' ? textOrActivity : textOrActivity.text,
+      response: typeof textOrActivity === 'string' ? textOrActivity : feedbackValue(textOrActivity),
       feedback: null,
       comments: null,
     };
@@ -160,7 +161,7 @@ export class Feedback implements Middleware {
 
       // user is giving feedback selection
       } else if (this.userGaveFeedback(context)) {
-        record.feedback = context.activity.text;
+        record.feedback = feedbackValue(context.activity);
 
         if (canGiveComments) {
           await this.sendMessage(context, this.options.freeFormPrompt);
@@ -225,15 +226,15 @@ export class Feedback implements Middleware {
 
   private userCanGiveComments(context: ContextWithFeedback) {
     return this.options.promptFreeForm === true || (Array.isArray(this.options.promptFreeForm) && this.options.promptFreeForm
-      .some((x) => x === context.activity.text));
+      .some((x) => x === feedbackValue(context.activity)));
   }
 
   private userGaveFeedback(context: ContextWithFeedback) {
     return !this.userDismissed(context) && this.options.feedbackActions
-      .some((x) => feedbackActionText(x) === context.activity.text);
+      .some((x) => feedbackAction(x) === feedbackValue(context.activity));
   }
 
   private userDismissed(context: ContextWithFeedback) {
-    return context.activity.text === feedbackActionText(this.options.dismissAction);
+    return feedbackValue(context.activity) === feedbackAction(this.options.dismissAction);
   }
 }
