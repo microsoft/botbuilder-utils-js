@@ -31,7 +31,7 @@ export interface HttpTestRecorderOptions extends HttpTestFileOptions {
 }
 
 /**
- * Middleware to support automatic collection and cleansing of HTTP requests/responses for external services like LUIS.
+ * Middleware to support automatic storage and cleansing of HTTP requests/responses for external services like LUIS.
  * Stored HTTP response can be loaded into your unit tests to validate your bot locig without requiring actual network calls to supporting services.
  */
 export class HttpTestRecorder implements Middleware {

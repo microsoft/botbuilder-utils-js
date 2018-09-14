@@ -91,6 +91,8 @@ At no point will an actual LUIS endpoint be hit by the TestAdapter
 
 ## HttpTestRecorder (class)
 
+_Middleware to support automatic storage and cleansing of HTTP requests/responses for external services like LUIS._
+
 _This class implements the [Middleware](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/middlewareSet.ts#L14-L16) interface._
 
 
