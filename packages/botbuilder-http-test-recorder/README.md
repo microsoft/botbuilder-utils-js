@@ -172,4 +172,4 @@ type RequestFilter = (request: NockDefinition) => boolean;
 ```
 _Return true if the given request should stored in the captured HTTP session_
 
-See [Nock package documentation](https://www.npmjs.com/package/nock) for more information about `Scopes` and `NockDefinitions`
+> See [Nock package documentation](https://www.npmjs.com/package/nock) for more information about `Scopes` and `NockDefinitions`
