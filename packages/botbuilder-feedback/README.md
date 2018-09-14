@@ -74,13 +74,13 @@ _The user may click or type their response. If anything other than the available
 constructor(conversationState: ConversationState, options?: FeedbackOptions)
 ```
 
-* `conversationState`: The instance of `ConversationState` used by your bot
+* `conversationState`: The instance of [`ConversationState`](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-v4-state?view=azure-bot-service-4.0&tabs=js) used by your bot
 * `options`: Optional configuration to override default prompts and behavior
-* `options.feedbackActions` (FeedbackAction): Custom feedback choices for the user. Default values are: `['👍 good answer', '👎 bad answer']`
-* `options.feedbackResponse` (Message): Message to show when a user provides some feedback. Default value is `'Thanks for your feedback!'`
-* `options.dismissAction` (FeedbackAction): Text to show on button that allows user to hide/ignore the feedback request. Default value is `'dismiss'`
-* `options.promptFreeForm` (boolean | string[]): Optionally enable prompting for free-form comments for all or select feedback choices (free-form prompt is shown after user selects a preset choice)
-* `options.freeFormPrompt` (Message): Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
+* `options.feedbackActions` (`FeedbackAction`): Custom feedback choices for the user. Default values are: `['👍 good answer', '👎 bad answer']`
+* `options.feedbackResponse` (`Message`): Message to show when a user provides some feedback. Default value is `'Thanks for your feedback!'`
+* `options.dismissAction` (`FeedbackAction`): Text to show on button that allows user to hide/ignore the feedback request. Default value is `'dismiss'`
+* `options.promptFreeForm` (`boolean | string[]`): Optionally enable prompting for free-form comments for all or select feedback choices (free-form prompt is shown after user selects a preset choice)
+* `options.freeFormPrompt` (`Message`): Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
 
 ```TypeScript
 static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity>
