@@ -84,7 +84,7 @@ describe('My bot', () => {
   });
 });
 ```
-Results from luisRecognizer.recognize will reflect the stored LUIS response.
+Results from `luisRecognizer.recognize(...)` will reflect the stored LUIS response.
 At no point will an actual LUIS endpoint be hit by the TestAdapter
 
 ## API
