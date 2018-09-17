@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-import { PagedResult, Transcript, TranscriptStore } from 'botbuilder-core';
+import { PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
 import { Activity } from 'botframework-schema';
 import { Collection, DocumentClient, IncludedPath } from 'documentdb';
 
@@ -143,18 +143,18 @@ export class CosmosDbTranscriptStore implements TranscriptStore {
     };
   }
 
-  async listTranscripts(channelId: string, continuationToken?: string): Promise<PagedResult<Transcript>> {
+  async listTranscripts(channelId: string, continuationToken?: string): Promise<PagedResult<TranscriptInfo>> {
     await this.initializer.wait();
     const parameters = [
       { name: '@channelId', value: channelId },
     ];
     const sql = { query: LIST_TRANSCRIPTS, parameters };
     const options = { continuation: continuationToken };
-    const [results, headers] = await queryDocuments<Transcript>(this.client, this.coll, sql, options);
+    const [results, headers] = await queryDocuments<TranscriptInfo>(this.client, this.coll, sql, options);
 
     // due to concurrency, a transcript may have duplicate records
     // use a Map to limit each transcript to a single (earliest by date) output record
-    const transcripts = new Map<string, Transcript>();
+    const transcripts = new Map<string, TranscriptInfo>();
     for (const result of results) {
       const id = result.channelId + result.id;
 

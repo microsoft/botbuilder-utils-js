@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { TelemetryClient } from 'applicationinsights';
-import { PagedResult, Transcript, TranscriptStore } from 'botbuilder-core';
+import { PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
 import { Activity } from 'botframework-schema';
 
 import { AppInsightsReadClient } from './app-insights';
@@ -95,15 +95,15 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
     };
   }
 
-  async listTranscripts(channelId: string, continuationToken?: string): Promise<PagedResult<Transcript>> {
+  async listTranscripts(channelId: string, continuationToken?: string): Promise<PagedResult<TranscriptInfo>> {
     this.throwIfNoReader();
     const query = qListTranscripts(channelId);
     const resp = await this.readClient.query(query);
-    const transcripts = resp.map((x) => deserialize<Transcript>(x));
+    const transcripts = resp.map((x) => deserialize<TranscriptInfo>(x));
 
     // due to concurrency, a transcript may have duplicate records
     // use a Map to limit each transcript to a single (earliest by date) output record
-    const transcriptStarts = new Map<string, Transcript>();
+    const transcriptStarts = new Map<string, TranscriptInfo>();
     for (const transcript of transcripts) {
       const key = transcript.channelId + transcript.id;
 
