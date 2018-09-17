@@ -1,6 +1,6 @@
 import { Middleware, TurnContext } from 'botbuilder-core';
 import * as fs from 'fs-extra';
-import { NockDefinition, recorder } from 'nock';
+import { NockDefinition, recorder, restore } from 'nock';
 import * as path from 'path';
 
 import { findRootModuleDir } from './find-root-module-dir';
@@ -156,6 +156,7 @@ export class HttpTestRecorder implements Middleware {
   private async clearRecording(context: TurnContext): Promise<void> {
     try {
       recorder.clear();
+      restore();
       await context.sendActivity('Recording has stopped');
     } catch (err) {
       await context.sendActivity(`**ERROR**: ${err.message}`);
@@ -172,6 +173,7 @@ export class HttpTestRecorder implements Middleware {
         .filter((req) => this.options.requestFilter.length && this.options.requestFilter.some((filter) => filter(req)))
         .map((req) => this.options.transformRequest.reduce((m, xform) => xform(m), req));
       recorder.clear();
+      restore();
 
       await fs.ensureDir(this.options.testDataDirectory);
       await fs.writeFile(filePath, JSON.stringify(requests, null, 2));
