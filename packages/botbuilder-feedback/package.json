@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-feedback",
-  "version": "4.0.14",
+  "version": "4.0.15",
   "description": "Middleware for Microsoft Bot Framework to facilitate collection and logging of user feedback analytics",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",

@@ -147,7 +147,7 @@ export class Feedback implements Middleware {
     // store feedback options on the context object so that they can be used downstream by user-invoked `requestFeedback()`
     context.feedback = Object.assign({}, this.options, { conversationState: this.conversationState });
 
-    const record = this.getFeedbackState(context);
+    const record = await this.getFeedbackState(context);
 
     // feedback is pending
     if (record) {
@@ -185,8 +185,8 @@ export class Feedback implements Middleware {
     }
   }
 
-  private getFeedbackState(context: ContextWithFeedback): FeedbackRecord {
-    const state = this.conversationState.get(context);
+  private async getFeedbackState(context: ContextWithFeedback): Promise<FeedbackRecord> {
+    const state = await this.conversationState.load(context);
     if (!state) {
       throw new Error('Feedback middleware cannot find a BotState instance. Make sure that your ConversationState middleware is added to your bot before Feedback');
     }
@@ -208,7 +208,7 @@ export class Feedback implements Middleware {
   }
 
   private async storeFeedback(context: ContextWithFeedback) {
-    const record = this.getFeedbackState(context);
+    const record = await this.getFeedbackState(context);
     this.clearFeedbackState(context);
     await context.sendActivity({
       type: ActivityTypes.Trace,
