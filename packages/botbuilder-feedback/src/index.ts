@@ -154,7 +154,7 @@ export class Feedback implements Middleware {
       const canGiveComments = this.userCanGiveComments(context);
 
       // user is giving free-form comments
-      if (record.feedback && canGiveComments) {
+      if (record.feedback && this.options.promptFreeForm) {
         record.comments = context.activity.text;
         await this.storeFeedback(context);
         return;
