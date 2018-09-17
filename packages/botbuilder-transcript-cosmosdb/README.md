@@ -111,4 +111,4 @@ Here is an example document:
 }
 ```
 
-[Sample queries](./src/queries) are available in this package's implementation.
+[Sample queries](./src/queries.ts) are available in this package's implementation.
