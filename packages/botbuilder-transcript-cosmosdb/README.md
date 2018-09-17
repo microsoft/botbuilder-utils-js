@@ -110,3 +110,5 @@ Here is an example document:
 	"_ts": 1536161715
 }
 ```
+
+[Sample queries](./src/queries.ts) are available in this package's implementation.
