@@ -169,7 +169,7 @@ export class HttpTestRecorder implements Middleware {
       name = name || new Date().toISOString().replace(/[:-]/g, '_');
       const filePath = path.join(this.options.testDataDirectory, `${name}.json`);
       const requests = (recorder.play() as NockDefinition[])
-        .filter((req) => this.options.requestFilter.length && this.options.requestFilter.every((filter) => filter(req)))
+        .filter((req) => this.options.requestFilter.length && this.options.requestFilter.some((filter) => filter(req)))
         .map((req) => this.options.transformRequest.reduce((m, xform) => xform(m), req));
       recorder.clear();
 
