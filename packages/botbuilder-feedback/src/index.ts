@@ -48,8 +48,8 @@ export interface FeedbackOptions {
 /** Record of feedback received */
 export interface FeedbackRecord {
 
-  /** type of feedback recorded, for analytics purposes */
-  type: string;
+  /** arbitrary feedback tagging, for analytics purposes */
+  tag: string;
 
   /** activity sent by the user that triggered the feedback request */
   request: Partial<Activity>;
@@ -75,16 +75,16 @@ export class Feedback implements Middleware {
    * @param context current bot context
    * @param textOrActivity message sent to the user for which feedback is being requested.
    * If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
-   * @param type optional type so that feedback responses can be grouped for analytics purposes
+   * @param tag optional tag so that feedback responses can be grouped for analytics purposes
    */
-  static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity> {
+  static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, tag?: string): Partial<Activity> {
     const feedbackContext = context as ContextWithFeedback;
     const state = feedbackContext.feedback.conversationState.get(context) as StoreItem & FeedbackState; // TODO SDK Feedback: get() should be generic
     const actions = feedbackContext.feedback.feedbackActions.concat(feedbackContext.feedback.dismissAction)
       .filter((x) => !!x);
 
     state.feedback = { // this should be put on the context object. onTurn should move it from context to state after await next()
-      type,
+      tag,
       request: context.activity,
       response: typeof textOrActivity === 'string' ? textOrActivity : feedbackValue(textOrActivity),
       feedback: null,
@@ -111,10 +111,10 @@ export class Feedback implements Middleware {
    * @param context current bot context
    * @param textOrActivity message sent to the user for which feedback is being requested.
    * If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
-   * @param type optional type so that feedback responses can be grouped for analytics purposes
+   * @param tag optional tag so that feedback responses can be grouped for analytics purposes
    */
-  static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, type?: string) {
-    const message = Feedback.createFeedbackMessage(context, textOrActivity, type);
+  static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, tag?: string) {
+    const message = Feedback.createFeedbackMessage(context, textOrActivity, tag);
     return context.sendActivity(message);
   }
 
