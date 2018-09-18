@@ -1,6 +1,6 @@
 import { Middleware, TurnContext } from 'botbuilder-core';
 import * as fs from 'fs-extra';
-import { NockDefinition, recorder } from 'nock';
+import { NockDefinition, recorder, restore } from 'nock';
 import * as path from 'path';
 
 import { findRootModuleDir } from './find-root-module-dir';
@@ -28,12 +28,12 @@ export interface HttpTestRecorderOptions extends HttpTestFileOptions {
   /** stored requests/responses will be passed through these functions. use to remove secrets or change parts of the url or path */
   transformRequest?: RequestTransformer[];
 
-  /** only requests matching all of these filter will be stored */
+  /** only requests matching all of these filters will be stored */
   requestFilter?: RequestFilter[];
 }
 
 /**
- * Middleware to support automatic collection and cleansing of HTTP requests/responses for external services like LUIS.
+ * Middleware to support automatic storage and cleansing of HTTP requests/responses for external services like LUIS.
  * Stored HTTP response can be loaded into your unit tests to validate your bot locig without requiring actual network calls to supporting services.
  */
 export class HttpTestRecorder implements Middleware {
@@ -72,6 +72,7 @@ export class HttpTestRecorder implements Middleware {
         return this.startRecording(context);
       case 'rec:clear':
       case 'rec:reset':
+      case 'rec:cancel':
         return this.clearRecording(context);
       case 'rec:stop':
       case 'rec:end':
@@ -182,6 +183,7 @@ export class HttpTestRecorder implements Middleware {
   private async clearRecording(context: TurnContext): Promise<void> {
     try {
       recorder.clear();
+      restore();
       await context.sendActivity('Recording has stopped');
     } catch (err) {
       await context.sendActivity(`**ERROR**: ${err.message}`);
@@ -198,6 +200,7 @@ export class HttpTestRecorder implements Middleware {
         .filter((req) => this.options.requestFilter.length && this.options.requestFilter.some((filter) => filter(req)))
         .map((req) => this.options.transformRequest.reduce((m, xform) => xform(m), req));
       recorder.clear();
+      restore();
 
       await fs.ensureDir(this.options.testDataDirectory);
       await fs.writeFile(filePath, JSON.stringify(requests, null, 2));

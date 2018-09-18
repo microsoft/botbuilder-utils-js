@@ -14,7 +14,8 @@ const TRACE_LABEL = 'User Feedback';
 
 export type Message = string | { text: string, speak?: string };
 
-const feedbackActionText = (action: FeedbackAction) => typeof action === 'string' ? action : action.text;
+const feedbackAction = (action: FeedbackAction) => typeof action === 'string' ? action : feedbackValue(action);
+const feedbackValue = (activity: { text?: string, value?: any }) => activity.value || activity.text;
 
 /** StoreItem to track feedback state */
 export interface FeedbackState extends StoreItem {
@@ -22,14 +23,11 @@ export interface FeedbackState extends StoreItem {
 }
 
 export interface FeedbackContext {
-  feedback: FeedbackOptions;
+  feedback: FeedbackOptions & { conversationState: ConversationState };
 }
 
 /** Options for Feedback Middleware */
 export interface FeedbackOptions {
-
-  /** The instance of ConversationState used by your bot */
-  conversationState: ConversationState;
 
   /** Custom feedback choices for the user. Default values are: `['👍 good answer', '👎 bad answer']` */
   feedbackActions?: FeedbackAction[];
@@ -56,11 +54,11 @@ export interface FeedbackRecord {
   /** activity sent by the user that triggered the feedback request */
   request: Partial<Activity>;
 
-  /** bot text for which feedback is being requested */
-  response: string;
+  /** bot text or value for which feedback is being requested */
+  response: string | any;
 
   /** user's feedback selection */
-  feedback: string;
+  feedback: string | any;
 
   /** user's free-form comments, if enabled */
   comments: string;
@@ -79,16 +77,16 @@ export class Feedback implements Middleware {
    * If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
    * @param type optional type so that feedback responses can be grouped for analytics purposes
    */
-  static requestFeedback(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity> {
+  static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity> {
     const feedbackContext = context as ContextWithFeedback;
-    const state = feedbackContext.feedback.conversationState.get(context) as StoreItem & FeedbackState; // TODO SDK Feedback: get() should be generic, not BotState
+    const state = feedbackContext.feedback.conversationState.get(context) as StoreItem & FeedbackState; // TODO SDK Feedback: get() should be generic
     const actions = feedbackContext.feedback.feedbackActions.concat(feedbackContext.feedback.dismissAction)
       .filter((x) => !!x);
 
     state.feedback = { // this should be put on the context object. onTurn should move it from context to state after await next()
       type,
       request: context.activity,
-      response: typeof textOrActivity === 'string' ? textOrActivity : textOrActivity.text,
+      response: typeof textOrActivity === 'string' ? textOrActivity : feedbackValue(textOrActivity),
       feedback: null,
       comments: null,
     };
@@ -109,47 +107,61 @@ export class Feedback implements Middleware {
   }
 
   /**
-   * Create a new Feedback middleware instance
-   * @param options configuration parameters for the feedback middleware
+   * Sends a message that includes feedback prompts in the form of Suggested Actions
+   * @param context current bot context
+   * @param textOrActivity message sent to the user for which feedback is being requested.
+   * If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
+   * @param type optional type so that feedback responses can be grouped for analytics purposes
    */
-  constructor(private options: FeedbackOptions) {
-    if (!options.feedbackActions) {
-      options.feedbackActions = DEFAULT_FEEDBACK_ACTIONS;
+  static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, type?: string) {
+    const message = Feedback.createFeedbackMessage(context, textOrActivity, type);
+    return context.sendActivity(message);
+  }
+
+  /**
+   * Create a new Feedback middleware instance
+   * @param conversationState The instance of `ConversationState` used by your bot
+   * @param options Optional configuration parameters for the feedback middleware
+   */
+  constructor(private conversationState: ConversationState, private options?: FeedbackOptions) {
+    this.options = options || {};
+    if (!this.options.feedbackActions) {
+      this.options.feedbackActions = DEFAULT_FEEDBACK_ACTIONS;
     }
-    if (!options.feedbackResponse) {
-      options.feedbackResponse = DEFAULT_FEEDBACK_RESPONSE;
+    if (!this.options.feedbackResponse) {
+      this.options.feedbackResponse = DEFAULT_FEEDBACK_RESPONSE;
     }
-    if (!options.dismissAction) {
-      options.dismissAction = DEFAULT_DISMISS_ACTION;
+    if (!this.options.dismissAction) {
+      this.options.dismissAction = DEFAULT_DISMISS_ACTION;
     }
-    if (!options.freeFormPrompt) {
-      options.freeFormPrompt = DEFAULT_FREE_FORM_PROMPT;
+    if (!this.options.freeFormPrompt) {
+      this.options.freeFormPrompt = DEFAULT_FREE_FORM_PROMPT;
     }
-    if (!options.promptFreeForm) {
-      options.promptFreeForm = DEFAULT_PROMPT_FREE_FORM;
+    if (!this.options.promptFreeForm) {
+      this.options.promptFreeForm = DEFAULT_PROMPT_FREE_FORM;
     }
   }
 
   async onTurn(context: ContextWithFeedback, next: () => Promise<void>): Promise<void> {
 
     // store feedback options on the context object so that they can be used downstream by user-invoked `requestFeedback()`
-    context.feedback = this.options;
+    context.feedback = Object.assign({}, this.options, { conversationState: this.conversationState });
 
-    const record = this.getFeedbackState(context);
+    const record = await this.getFeedbackState(context);
 
     // feedback is pending
     if (record) {
       const canGiveComments = this.userCanGiveComments(context);
 
       // user is giving free-form comments
-      if (record.feedback && canGiveComments) {
+      if (record.feedback && this.options.promptFreeForm) {
         record.comments = context.activity.text;
         await this.storeFeedback(context);
         return;
 
       // user is giving feedback selection
       } else if (this.userGaveFeedback(context)) {
-        record.feedback = context.activity.text;
+        record.feedback = feedbackValue(context.activity);
 
         if (canGiveComments) {
           await this.sendMessage(context, this.options.freeFormPrompt);
@@ -173,8 +185,8 @@ export class Feedback implements Middleware {
     }
   }
 
-  private getFeedbackState(context: ContextWithFeedback): FeedbackRecord {
-    const state = this.options.conversationState.get(context);
+  private async getFeedbackState(context: ContextWithFeedback): Promise<FeedbackRecord> {
+    const state = await this.conversationState.load(context);
     if (!state) {
       throw new Error('Feedback middleware cannot find a BotState instance. Make sure that your ConversationState middleware is added to your bot before Feedback');
     }
@@ -183,7 +195,7 @@ export class Feedback implements Middleware {
   }
 
   private clearFeedbackState(context: ContextWithFeedback): void {
-    const state = this.options.conversationState.get(context);
+    const state = this.conversationState.get(context);
     delete state.feedback;
   }
 
@@ -196,7 +208,7 @@ export class Feedback implements Middleware {
   }
 
   private async storeFeedback(context: ContextWithFeedback) {
-    const record = this.getFeedbackState(context);
+    const record = await this.getFeedbackState(context);
     this.clearFeedbackState(context);
     await context.sendActivity({
       type: ActivityTypes.Trace,
@@ -214,15 +226,15 @@ export class Feedback implements Middleware {
 
   private userCanGiveComments(context: ContextWithFeedback) {
     return this.options.promptFreeForm === true || (Array.isArray(this.options.promptFreeForm) && this.options.promptFreeForm
-      .some((x) => x === context.activity.text));
+      .some((x) => x === feedbackValue(context.activity)));
   }
 
   private userGaveFeedback(context: ContextWithFeedback) {
     return !this.userDismissed(context) && this.options.feedbackActions
-      .some((x) => feedbackActionText(x) === context.activity.text);
+      .some((x) => feedbackAction(x) === feedbackValue(context.activity));
   }
 
   private userDismissed(context: ContextWithFeedback) {
-    return context.activity.text === feedbackActionText(this.options.dismissAction);
+    return feedbackValue(context.activity) === feedbackAction(this.options.dismissAction);
   }
 }
