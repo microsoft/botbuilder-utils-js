@@ -83,25 +83,25 @@ constructor(conversationState: ConversationState, options?: FeedbackOptions)
 * `options.freeFormPrompt` (`Message`): Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
 
 ```TypeScript
-static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity>
+static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, tag?: string): Partial<Activity>
 ```
 
 _Create an Activity object with feedback choices that can be sent to the user_
 
 * `context`: Current bot TurnContext
 * `textOrActivity`: message sent to the user for which feedback is being requested. If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
-* `type` optional type so that feedback responses can be grouped for analytics purposes
+* `tag` optional tag so that feedback responses can be grouped for analytics purposes
 * _returns_ An `Activity` object containing the desired `message` and `suggestedAction` parameters
 
 ```TypeScript
-static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, type?: string): Partial<Activity>
+static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, tag?: string): Partial<Activity>
 ```
 
 _Send an Activity object with feedback choices to the user_
 
 * `context`: Current bot TurnContext
 * `textOrActivity`: message sent to the user for which feedback is being requested. If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
-* `type` optional type so that feedback responses can be grouped for analytics purposes
+* `tag` optional tag so that feedback responses can be grouped for analytics purposes
 * _returns_ The promise from a call to `context.sendActivity(...)`. Don't forget to `await` this!
 
 This class implements the [Middleware](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/middlewareSet.ts#L14-L16) interface.
@@ -201,7 +201,7 @@ The trace `value` contains information about the feedback
 * `response`: bot text for which feedback is being requested
 * `feedback`: user's feedback selection
 * `comments`: (if enabled) user's free-form comments
-* `type`: (if enabled) type of feedback recorded, for analytics queries
+* `tag`: (if enabled) tag or label describing the feedback that was recorded, for analytics queries
 
 _Example feedback trace:_
 
