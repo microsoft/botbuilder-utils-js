@@ -268,3 +268,66 @@ _Example feedback trace:_
   "id": null
 }
 ```
+
+## Sample Analytics Queries
+
+The two reccommended [TranscriptLogger](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/transcriptLogger.ts) stores to perform analytics queries on this, or any other bot activitiy log, are [Cosmos DB](../botbuilder-transcript-cosmosdb) and [Application Insights](../botbuilder-transcript-app-insights). Pick one, and configure it per its documentation. Then and add it to your bot via the `TranscriptLogger` middleware.
+
+### Querying Cosmos DB
+
+> Also see the Cosmos DB [SQL API reference](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-sql-query-reference).
+
+
+_Cosmos DB Query:_
+```SQL
+SELECT VALUE c.activity['value']
+FROM c
+WHERE c.activity['value'].feedback = '👎 bad answer'
+```
+
+_Cosmos DB Results:_
+```JSON
+[
+    {
+        "request": {
+            "text": "what is the meaning of life"
+            /** snip **/
+        },
+        "response": "42",
+        "feedback": "👎 bad answer",
+        "comments": null
+    }
+]
+```
+
+### Querying AppInsights
+
+> Also see the App Insights [Language Reference](https://docs.loganalytics.io/docs/Language-Reference)
+
+Filtering on nested Activity properties requires that you configure them _a priori_ in the `AppInsightsTranscriptStore`:
+
+```JavaScript
+const store = new AppInsightsTranscriptStore(client, {
+	filterableActivityProperties: [ 'value.feedback' ],
+});
+```
+
+Now the field is available as a filterable _customDimension_ in your Analytics query:
+
+```
+customEvents
+  | where customDimensions.$valueFeedback == '👎 bad answer'
+  | project customDimensions._value
+```
+
+_Response_:
+
+```JavaScript
+{
+  request: { text: 'what is the meaning of life' /** snip **/ },
+  response: '42',
+  feedback: '👎 bad answer',
+  comments: null }
+```
+
+> Events may not be immediately retrievable, depending on client-side buffering and other conditions.
