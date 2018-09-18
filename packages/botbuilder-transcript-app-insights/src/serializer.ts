@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+import camelcase = require('lodash.camelcase');
+import get = require('lodash.get');
+import has = require('lodash.has');
+
 const MAX_KEY_SIZE = 150;
 const MAX_VALUE_SIZE = 8192;
 const KEY_META_PREFIX = '$';
@@ -46,6 +50,14 @@ export function serializeMetadata(event: EventProperties, properties: EventPrope
     event[KEY_META_PREFIX + key] = properties[key];
   }
   return properties;
+}
+
+export function serializeProperties(event: EventProperties, keys: string[], source: any) {
+  for (const key of keys) {
+    if (has(source, key)) {
+      event[KEY_META_PREFIX + camelcase(key)] = get(source, key);
+    }
+  }
 }
 
 export function deserialize<T>(event: EventProperties): T {

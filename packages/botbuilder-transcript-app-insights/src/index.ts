@@ -6,9 +6,9 @@ import { PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
 import { Activity } from 'botframework-schema';
 
 import { AppInsightsReadClient } from './app-insights';
-import { deserialize, serialize, serializeMetadata } from './serializer';
+import { deserialize, serialize, serializeMetadata, serializeProperties } from './serializer';
 
-export interface AppInsightsTranscriptStoreOptions {
+export interface AppInsightsQueryOptions {
   /**
    * API Access application id
    */
@@ -18,6 +18,34 @@ export interface AppInsightsTranscriptStoreOptions {
    * API Access key with 'Read telemetry' permissions
    */
   readKey: string;
+}
+
+export interface AppInsightsTranscriptOptions {
+
+  /**
+   * Configure transcript store for reading (only if using `getTranscriptActivities` and `listTranscripts` functions)
+   */
+  query?: AppInsightsQueryOptions;
+
+  /**
+   * Specify nested activity fields that should be exposed as queryable AppInsights properties
+   *
+   * @example
+   * // Given a trace Activity like:
+   * { "type": "trace", "value": { "nested": { "property": 123 } } }
+   *
+   * // And an `filterableActivityProperties` configuration of:
+   * [ 'value.nested.property' ]
+   *
+   * // You can use the string property in an AppInsights analytics query as:
+   * customEvents
+   *   | where customDimensions.$valueNestedProperty == '123'
+   *
+   * // Such activities are prefixed with `$` to differentiate them from other Activity properties, which are automatically stored
+   * // Note that select Activity are automatically converted to properties:
+   * ['conversation.id', 'from.id', 'recipient.id']
+   */
+  filterableActivityProperties?: string[];
 }
 
 /**
@@ -56,11 +84,13 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
   /**
    * Create a new Application Insights transcript store for use in a Bot Framework bot
    * @param client Application Insights telemetry client
-   * @param readOptions Configure transcript store for reading (only if using `getTranscriptActivities` and `listTranscripts` functions)
+   * @param options Optional configuration parameters
    */
-  constructor(private client: TelemetryClient, private readOptions?: AppInsightsTranscriptStoreOptions) {
-    if (this.readOptions) {
-      this.readClient = new AppInsightsReadClient(this.readOptions.applicationId, readOptions.readKey);
+  constructor(private client: TelemetryClient, private options?: AppInsightsTranscriptOptions) {
+    if (this.options) {
+      if (this.options.query) {
+        this.readClient = new AppInsightsReadClient(this.options.query.applicationId, options.query.readKey);
+      }
     }
   }
 
@@ -78,6 +108,9 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
       timestamp: timestamp.toISOString(),
       start: (!this.transcriptIdCache.has(transcriptId)).toString(),
     });
+    if (this.options && this.options.filterableActivityProperties) {
+      serializeProperties(properties, this.options.filterableActivityProperties, activity);
+    }
 
     this.transcriptIdCache.add(transcriptId);
     this.client.trackEvent({ name: 'activity', properties });
