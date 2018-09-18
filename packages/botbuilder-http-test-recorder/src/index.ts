@@ -10,6 +10,8 @@ const LUIS_HOST = /^https:\/\/[^.]+\.api\.cognitive\.microsoft\.com:443/;
 const LUIS_PATH = /\/luis\/v2.0\/apps\/[^?]+/;
 const LUIS_QS_KEY = /subscription-key=[^&]+/;
 const AZURE_SEARCH_HOST = /^https:\/\/[^.]+\.search\.windows\.net:443/;
+const QNA_MAKER_HOST = /^https:\/\/[^.]+\.azurewebsites\.net:443/;
+const QNA_KEY = /EndpointKey [^.]+/; 
 const SESSION_NAME = /rec:(?:end|stop):(.+)/;
 
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
@@ -76,7 +78,7 @@ export class HttpTestRecorder implements Middleware {
         return this.stopRecording(context, sessionName);
 
       default:
-        return next();
+        return next(); 
     }
   }
 
@@ -96,6 +98,31 @@ export class HttpTestRecorder implements Middleware {
           .replace(LUIS_PATH, `/luis/v2.0/apps/${testAppId}`);
         req.scope = req.scope
           .replace(LUIS_HOST, `https://${testRegion}.api.cognitive.microsoft.com:443`);
+        return req;
+      });
+    }
+    return this;
+  }
+
+  /**
+   * Configure the test recorder to capture QnAMaker requests
+   * @param testRegion replace region in captured request with this value
+   * @param testKey replace key in captured request query params with this value
+   * @param testKBId replace knowledgebase id in captured request with this value
+   */
+  captureQnAMaker(testRegion = 'westus', testKBId = 'testKBId', testKey = 'testKey') {
+    console.log('CaptureQnaMaker');
+    if (Array.isArray(this.options.requestFilter)) {
+      console.log('CaptureQnaMaker');
+      this.options.requestFilter.push((req) => {
+        console.log(req.scope, QNA_MAKER_HOST.test(req.scope))
+        return QNA_MAKER_HOST.test(req.scope);
+      });
+    }
+    if (Array.isArray(this.options.transformRequest)) {
+      this.options.transformRequest.push((req) => {
+        req.scope = req.scope
+          .replace(QNA_MAKER_HOST, `https://${testRegion}.azurewebsites.net/qnamaker`);
         return req;
       });
     }
@@ -168,7 +195,7 @@ export class HttpTestRecorder implements Middleware {
       name = name || new Date().toISOString().replace(/[:-]/g, '_');
       const filePath = path.join(this.options.testDataDirectory, `${name}.json`);
       const requests = (recorder.play() as NockDefinition[])
-        .filter((req) => this.options.requestFilter.length && this.options.requestFilter.every((filter) => filter(req)))
+        .filter((req) => this.options.requestFilter.length && this.options.requestFilter.some((filter) => filter(req)))
         .map((req) => this.options.transformRequest.reduce((m, xform) => xform(m), req));
       recorder.clear();
 
