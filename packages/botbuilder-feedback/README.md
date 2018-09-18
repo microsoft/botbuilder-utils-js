@@ -286,7 +286,7 @@ WHERE c.activity['value'].feedback = '👎 bad answer'
 ```
 
 _Cosmos DB Results:_
-```JSON
+```JavaScript
 [
     {
         "request": {
