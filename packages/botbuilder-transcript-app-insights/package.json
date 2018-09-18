@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-transcript-app-insights",
-  "version": "4.0.18",
+  "version": "4.0.19",
   "description": "Plugin to store Microsoft Bot Framework transcript activities in AppInsights",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
