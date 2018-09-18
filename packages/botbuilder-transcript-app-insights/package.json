@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-transcript-app-insights",
-  "version": "4.0.15",
+  "version": "4.0.18",
   "description": "Plugin to store Microsoft Bot Framework transcript activities in AppInsights",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -54,6 +54,12 @@
     "botframework-schema": "^4.0.1-aicat1.3"
   },
   "dependencies": {
+    "@types/lodash.camelcase": "^4.3.4",
+    "@types/lodash.get": "^4.4.4",
+    "@types/lodash.has": "^4.5.4",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.get": "^4.4.2",
+    "lodash.has": "^4.5.2",
     "superagent": "^3.8.3"
   }
 }
