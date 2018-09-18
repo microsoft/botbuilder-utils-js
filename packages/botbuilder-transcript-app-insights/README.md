@@ -49,13 +49,15 @@ Attaching the middleware to your bot adapter logs every incoming and outgoing Ac
 ### AppInsightsTranscriptStore (class)
 
 ```TypeScript
-constructor(client: TelemetryClient, readOptions?: AppInsightsTranscriptStoreOptions)
+constructor(client: TelemetryClient, options?: AppInsightsTranscriptOptions)
 ```
 
 * `client`: Provide your configured App Insights TelemetryClient instance from the `applicationinsights` package.
-* `readOptions` Optional, only needed if you will call the data access functions to retrieve transcripts and activities.
-* `readOptions.applicationId` (string): application id for API access
-* `readOptions.readKey` (string): API access key with _Read telemetry_ permissions
+* `options` Optional configuration parameters
+* `options.query` Optional, only needed if you will call the data access functions to retrieve transcripts and activities.
+* `options.query.applicationId` (`string`): Application id for API access
+* `options.query.readKey` (`string`): API access key with _Read telemetry_ permissions
+* `options.filterableActivityProperties` (`string[]`): Optional nested values on each Activity object that should be promoted as a queryable AppInsights property. Use dot notation to access nested property members. See [usage](#usage) for examples.
 
 > Learn how to [get your API key and Application ID](https://dev.applicationinsights.io/documentation/Authorization/API-key-and-App-ID)
 
@@ -101,3 +103,38 @@ Here are some example properties from a customEvent record:
 | _membersAdded | `[{"id":"default-bot","name":"Bot"}]` |
 
 [Sample queries](./src/index.ts#L38-L50) are available in this package's implementation.
+
+## Using Activity Trace Properties in Analytics Queries
+
+Every custom event written to App Insights may supply supplementary properties in the form of key/value string pairs. These are also known as an event's _customDimensions_.
+
+`AppInsightsTranscriptStore` automatically promotes select Activity values as filterable Analytics properties (see [schema](#schema)).
+
+If you need to promote additional Activity properties as filterable Analytics properties, you can pass them along in the [constructor parameters](#appinsightstranscriptstore-class). The primary reason to do this is to capture `trace` activity content from utilities like [QnAMaker](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-ai/src/qnaMaker.ts#L231-L239), [LUIS](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-ai/src/luisRecognizer.ts#L213-L222), and [Feedback](../botbuilder-feedback#schema).
+
+Promoted property values are accessed using `lodash.get` and property names are serialized using `lodash.camelcase` (with a prefix of `$`). See the following code for an example
+
+> Trace activity properties are always _stored_ in full, but they are not _filterable_ unless so configured.
+
+```JavaScript
+// qnamaker trace configuration
+// your app may need zero or more of these, depending on your analytics requirements
+const store = new AppInsightsTranscriptStore(client, {
+	filterableActivityProperties: [
+		'value.knowledgeBaseId',
+		'value.queryResults[0].questions[0]',
+		'value.queryResults[0].answer',
+		'value.queryResults[0].score',
+		'value.queryResults[0].source',
+	],
+});
+```
+
+You can now write an Analytics query that targets these values in a filter:
+
+```
+customEvents
+| where customDimensions.type == 'trace'
+	and customDimensions.$valueKnowledgeBaseId == 'kb123'
+	and customDimensions.$valueQueryResults0Questions0 == 'foo'
+```

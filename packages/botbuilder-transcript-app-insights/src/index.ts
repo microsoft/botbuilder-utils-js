@@ -34,7 +34,7 @@ export interface AppInsightsTranscriptOptions {
    * // Given a trace Activity like:
    * { "type": "trace", "value": { "nested": { "property": 123 } } }
    *
-   * // And an `activityProperties` configuration of:
+   * // And an `filterableActivityProperties` configuration of:
    * [ 'value.nested.property' ]
    *
    * // You can use the string property in an AppInsights analytics query as:
@@ -45,7 +45,7 @@ export interface AppInsightsTranscriptOptions {
    * // Note that select Activity are automatically converted to properties:
    * ['conversation.id', 'from.id', 'recipient.id']
    */
-  activityProperties?: string[];
+  filterableActivityProperties?: string[];
 }
 
 /**
@@ -108,8 +108,8 @@ export class AppInsightsTranscriptStore implements TranscriptStore {
       timestamp: timestamp.toISOString(),
       start: (!this.transcriptIdCache.has(transcriptId)).toString(),
     });
-    if (this.options && this.options.activityProperties) {
-      serializeProperties(properties, this.options.activityProperties, activity);
+    if (this.options && this.options.filterableActivityProperties) {
+      serializeProperties(properties, this.options.filterableActivityProperties, activity);
     }
 
     this.transcriptIdCache.add(transcriptId);
