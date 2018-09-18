@@ -11,7 +11,7 @@ const LUIS_PATH = /\/luis\/v2.0\/apps\/[^?]+/;
 const LUIS_QS_KEY = /subscription-key=[^&]+/;
 const AZURE_SEARCH_HOST = /^https:\/\/[^.]+\.search\.windows\.net:443/;
 const QNA_MAKER_HOST = /^https:\/\/[^.]+\.azurewebsites\.net:443/;
-const QNA_KEY = /EndpointKey [^.]+/; 
+const QNA_PATH = /\/qnamaker\/knowledgebases\/[^?]+\/generateanswer/;
 const SESSION_NAME = /rec:(?:end|stop):(.+)/;
 
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
@@ -79,7 +79,7 @@ export class HttpTestRecorder implements Middleware {
         return this.stopRecording(context, sessionName);
 
       default:
-        return next(); 
+        return next();
     }
   }
 
@@ -112,16 +112,15 @@ export class HttpTestRecorder implements Middleware {
    * @param testKBId replace knowledgebase id in captured request with this value
    */
   captureQnAMaker(testRegion = 'westus', testKBId = 'testKBId', testKey = 'testKey') {
-    console.log('CaptureQnaMaker');
     if (Array.isArray(this.options.requestFilter)) {
-      console.log('CaptureQnaMaker');
-      this.options.requestFilter.push((req) => {
-        console.log(req.scope, QNA_MAKER_HOST.test(req.scope))
-        return QNA_MAKER_HOST.test(req.scope);
-      });
+      this.options.requestFilter.push((req) => QNA_MAKER_HOST.test(req.scope));
     }
     if (Array.isArray(this.options.transformRequest)) {
-      this.options.transformRequest.push((req) => {
+      this.options.transformRequest.push((req: NockDefinition & { rawHeaders: string[] }) => {
+        req.rawHeaders = req.rawHeaders
+          .filter((e) => !e.includes('ARRAffinity'));
+        req.path = req.path
+          .replace(QNA_PATH, `/qnamaker/knowledgebases/${testKBId}/generateanswer`);
         req.scope = req.scope
           .replace(QNA_MAKER_HOST, `https://${testRegion}.azurewebsites.net/qnamaker`);
         return req;
