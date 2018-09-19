@@ -31,7 +31,8 @@ const { HttpTestRecorder } = require('botbuilder-http-test-recorder');
 
 const testRecorder = new HttpTestRecorder()
   .captureLuis()
-  .captureAzureSearch(); // some default capturing configurations are provided. for complete control use the optional constructor parameters
+  .captureAzureSearch(); 
+  .captureQnAMaker(); // some default capturing configurations are provided. for complete control use the optional constructor parameters
 const adapter = new BotFrameworkAdapter({
   appId: process.env.MICROSOFT_APP_ID,
   appPassword: process.env.MICROSOFT_APP_PASSWORD,
@@ -115,6 +116,17 @@ captureLuis(testRegion = 'westus', testAppId = 'testAppId', testKey = 'testKey')
 _Configure the test recorder to capture LUIS requests_
 
 * `testRegion`: The live HTTP request will be stored as if it hit this region. Your unit tests should be configured to target this region.
+* `testKey`: The live HTTP request will be be stored as if this key was used. It should not be a real key, and your unit tests should be configured to use the same value.
+* _returns_ the `HttpTestRecorder` instance
+
+```TypeScript
+captureQnAMaker(testRegion = 'westus', testKBId = 'testKBId', testKey = 'testKey'): this
+```
+
+_Configure the test recorder to capture QnA Maker requests_
+
+* `testRegion`: The live HTTP request will be stored as if it hit this region. Your unit tests should be configured to target this region.
+* `testKBId`: The live HTTP request will be stored as if it hit this QnAMaker Knowledgebase. It should not be a real knowledgebase identifier and your unit tests should be configured to target this.
 * `testKey`: The live HTTP request will be be stored as if this key was used. It should not be a real key, and your unit tests should be configured to use the same value.
 * _returns_ the `HttpTestRecorder` instance
 

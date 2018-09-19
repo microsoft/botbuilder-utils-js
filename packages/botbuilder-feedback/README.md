@@ -83,25 +83,25 @@ constructor(conversationState: ConversationState, options?: FeedbackOptions)
 * `options.freeFormPrompt` (`Message`): Message to show when `promptFreeForm` is enabled. Default value is `'Please add any additional comments in the chat'`
 
 ```TypeScript
-static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, type?: string): Partial<Activity>
+static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, tag?: string): Partial<Activity>
 ```
 
 _Create an Activity object with feedback choices that can be sent to the user_
 
 * `context`: Current bot TurnContext
 * `textOrActivity`: message sent to the user for which feedback is being requested. If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
-* `type` optional type so that feedback responses can be grouped for analytics purposes
+* `tag` optional tag so that feedback responses can be grouped for analytics purposes
 * _returns_ An `Activity` object containing the desired `message` and `suggestedAction` parameters
 
 ```TypeScript
-static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, type?: string): Partial<Activity>
+static sendFeedbackActivity(context: TurnContext, textOrActivity: string | Partial<Activity>, tag?: string): Partial<Activity>
 ```
 
 _Send an Activity object with feedback choices to the user_
 
 * `context`: Current bot TurnContext
 * `textOrActivity`: message sent to the user for which feedback is being requested. If the message is an Activity, and already contains a set of suggested actions, the feedback actions will be appened to the existing actions.
-* `type` optional type so that feedback responses can be grouped for analytics purposes
+* `tag` optional tag so that feedback responses can be grouped for analytics purposes
 * _returns_ The promise from a call to `context.sendActivity(...)`. Don't forget to `await` this!
 
 This class implements the [Middleware](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/middlewareSet.ts#L14-L16) interface.
@@ -201,7 +201,7 @@ The trace `value` contains information about the feedback
 * `response`: bot text for which feedback is being requested
 * `feedback`: user's feedback selection
 * `comments`: (if enabled) user's free-form comments
-* `type`: (if enabled) type of feedback recorded, for analytics queries
+* `tag`: (if enabled) tag or label describing the feedback that was recorded, for analytics queries
 
 _Example feedback trace:_
 
@@ -268,3 +268,66 @@ _Example feedback trace:_
   "id": null
 }
 ```
+
+## Sample Analytics Queries
+
+The two reccommended [TranscriptLogger](https://github.com/Microsoft/botbuilder-js/blob/master/libraries/botbuilder-core/src/transcriptLogger.ts) stores to perform analytics queries on this, or any other bot activitiy log, are [Cosmos DB](../botbuilder-transcript-cosmosdb) and [Application Insights](../botbuilder-transcript-app-insights). Pick one, and configure it per its documentation. Then and add it to your bot via the `TranscriptLogger` middleware.
+
+### Querying Cosmos DB
+
+> Also see the Cosmos DB [SQL API reference](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-sql-query-reference).
+
+
+_Cosmos DB Query:_
+```SQL
+SELECT VALUE c.activity['value']
+FROM c
+WHERE c.activity['value'].feedback = '👎 bad answer'
+```
+
+_Cosmos DB Results:_
+```JavaScript
+[
+    {
+        "request": {
+            "text": "what is the meaning of life"
+            /** snip **/
+        },
+        "response": "42",
+        "feedback": "👎 bad answer",
+        "comments": null
+    }
+]
+```
+
+### Querying AppInsights
+
+> Also see the App Insights [Language Reference](https://docs.loganalytics.io/docs/Language-Reference)
+
+Filtering on nested Activity properties requires that you configure them _a priori_ in the `AppInsightsTranscriptStore`:
+
+```JavaScript
+const store = new AppInsightsTranscriptStore(client, {
+	filterableActivityProperties: [ 'value.feedback' ],
+});
+```
+
+Now the field is available as a filterable _customDimension_ in your Analytics query:
+
+```
+customEvents
+  | where customDimensions.$valueFeedback == '👎 bad answer'
+  | project customDimensions._value
+```
+
+_Response_:
+
+```JavaScript
+{
+  request: { text: 'what is the meaning of life' /** snip **/ },
+  response: '42',
+  feedback: '👎 bad answer',
+  comments: null }
+```
+
+> Events may not be immediately retrievable, depending on client-side buffering and other conditions.
