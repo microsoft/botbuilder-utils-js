@@ -56,7 +56,8 @@ const { HttpTestPlayback } = require('botbuilder-http-test-recorder');
 
 describe('My bot', () => {
   it('should ask a question', () => {
-    const playback = new HttpTestPlayback();
+    // folder name of your stored http session. see naming above at rec:stop[:name] 
+    const playback = new HttpTestPlayback({testDataDirectory: 'YOUR-TEST-DIRECTORY'});
 
     // parameters should match the settings used in `textRecorder.captureLuis()`
     const luisRecognizer = new LuisRecognizer({
@@ -75,8 +76,8 @@ describe('My bot', () => {
       }
     });
 
-    // see naming above at rec:stop[:name]
-    playback.load('my-stored-http-session');
+    // file name of your stored http session
+    playback.load('YOUR-TEST-FILE');
 
     // execute the test logic
     await adapter
