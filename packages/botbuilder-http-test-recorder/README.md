@@ -60,7 +60,7 @@ const testRecorder = new HttpTestRecorder({
   transformRequest: [(def) => {
     const EXAMPLE_KEY = /key=[^&]+/;
     const testKey = "******";
-    def.path = def.path.replace(EXAMPLE_KEY, `APPID=${testKey}`)
+    def.path = def.path.replace(EXAMPLE_KEY, `key=${testKey}`)
     return def;
   }]
 });
@@ -69,12 +69,6 @@ const adapter = new BotFrameworkAdapter({
   appPassword: process.env.MICROSOFT_APP_PASSWORD,
 }).use(testRecorder);
 ```
-
-When the HttpTestRecorder middleware is attached to your bot it will respond to several chat commands:
-
-* `rec:start`: Begin recording HTTP requests and responses. Only HTTP requests made to a matching host will be recorded.
-* `rec:stop[:name]` Stop recording, and give an optional recording name that describes the session. If no name is provided, a timestamp will be used. HTTP sessions are stored to disk (default location is at `./test/data`, relative to the root module).
-* `rec:cancel` Stop the recording without storing any requests.
 
 ### Playback HTTP responses during unit tests
 
