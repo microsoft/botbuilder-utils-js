@@ -13,6 +13,10 @@ The following packages are provided as sample code only, and so are not publishe
 3. [botbuilder-feedback](./packages/botbuilder-feedback)
 4. [botbuilder-http-test-recorder](./packages/botbuilder-http-test-recorder)
 
+## Questions and Contact
+
+If you have a question or would like to contact the development team, please open an issue in this [repo](https://github.com/Microsoft/botbuilder-utils-js).
+
 ## Contributing
 
 > The botbuilder-utils team is currently only accepting bug fixes, not feature requests. If you spot a bug, please open an issue, and if possible, open a PR.
