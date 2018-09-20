@@ -10,6 +10,8 @@ const LUIS_HOST = /^https:\/\/[^.]+\.api\.cognitive\.microsoft\.com:443/;
 const LUIS_PATH = /\/luis\/v2.0\/apps\/[^?]+/;
 const LUIS_QS_KEY = /subscription-key=[^&]+/;
 const AZURE_SEARCH_HOST = /^https:\/\/[^.]+\.search\.windows\.net:443/;
+const QNA_MAKER_HOST = /^https:\/\/[^.]+\.azurewebsites\.net:443/;
+const QNA_MAKER_PATH = /\/qnamaker\/knowledgebases\/[^\/]+\/generateanswer/;
 const SESSION_NAME = /rec:(?:end|stop):(.+)/;
 
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
@@ -107,6 +109,30 @@ export class HttpTestRecorder implements Middleware {
           // body was not valid JSON, stringify it
           req.body = JSON.stringify(req.body);
         }
+        return req;
+      });
+    }
+    return this;
+  }
+
+  /**
+   * Configure the test recorder to capture QnAMaker requests
+   * @param testRegion replace region in captured request with this value
+   * @param testKey replace key in captured request query params with this value
+   * @param testKBId replace knowledgebase id in captured request with this value
+   */
+  captureQnAMaker(testRegion = 'westus', testKBId = 'testKBId', testKey = 'testKey') {
+    if (Array.isArray(this.options.requestFilter)) {
+      this.options.requestFilter.push((req) => QNA_MAKER_HOST.test(req.scope));
+    }
+    if (Array.isArray(this.options.transformRequest)) {
+      this.options.transformRequest.push((req: NockDefinition & { rawHeaders: string[] }) => {
+        req.rawHeaders = req.rawHeaders
+          .filter((e) => !e.includes('Set-Cookie') && !e.includes('ARRAffinity'));
+        req.path = req.path
+          .replace(QNA_MAKER_PATH, `/qnamaker/knowledgebases/${testKBId}/generateanswer`);
+        req.scope = req.scope
+          .replace(QNA_MAKER_HOST, `https://${testRegion}.azurewebsites.net/qnamaker`);
         return req;
       });
     }
