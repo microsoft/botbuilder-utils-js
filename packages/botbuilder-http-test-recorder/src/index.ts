@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import { Middleware, TurnContext } from 'botbuilder-core';
 import * as fs from 'fs-extra';
 import { NockDefinition, recorder, restore } from 'nock';
