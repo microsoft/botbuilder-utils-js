@@ -23,7 +23,9 @@ Because this package is supplied as sample code, it is not available on npm and 
 
 > JavaScript examples are shown below, but this package also works great in TypeScript projects.
 
-### Recording HTTP traffic in the bot
+### Recording HTTP traffic in the bot (Luis, Azure, and QnAMaker)
+
+This sample shows how to capture traffic from Luis, AzureSearch, and QnAMaker.
 
 ```JavaScript
 const { BotFrameworkAdapter } = require('botbuilder');
@@ -44,6 +46,29 @@ When the HttpTestRecorder middleware is attached to your bot it will respond to 
 * `rec:start`: Begin recording HTTP requests and responses. Only HTTP requests made to a matching host will be recorded.
 * `rec:stop[:name]` Stop recording, and give an optional recording name that describes the session. If no name is provided, a timestamp will be used. HTTP sessions are stored to disk (default location is at `./test/data`, relative to the root module).
 * `rec:cancel` Stop the recording without storing any requests.
+
+### Recording HTTP traffic in the bot (generic endpoint)
+
+This sample shows how to capture traffic from a generic endpoint. It demonstrates how to log traffic when the URL contains "example.com", and how to obscure the key.
+
+```JavaScript
+const { BotFrameworkAdapter } = require('botbuilder');
+const { HttpTestRecorder } = require('botbuilder-http-test-recorder');
+
+const testRecorder = new HttpTestRecorder({
+  requestFilter: [(req) => req.scope.indexOf("example.com") != -1],
+  transformRequest: [(def) => {
+    const EXAMPLE_KEY = /key=[^&]+/;
+    const testKey = "******";
+    def.path = def.path.replace(EXAMPLE_KEY, `key=${testKey}`)
+    return def;
+  }]
+});
+const adapter = new BotFrameworkAdapter({
+  appId: process.env.MICROSOFT_APP_ID,
+  appPassword: process.env.MICROSOFT_APP_PASSWORD,
+}).use(testRecorder);
+```
 
 ### Playback HTTP responses during unit tests
 
