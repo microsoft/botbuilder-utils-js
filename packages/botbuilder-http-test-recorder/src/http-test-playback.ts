@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import { cleanAll, disableNetConnect, isDone, load, Scope } from 'nock';
 import * as path from 'path';
 

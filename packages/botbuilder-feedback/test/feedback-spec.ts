@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 import { ActivityTypes, ConversationState, MemoryStorage, TestAdapter } from 'botbuilder-core';
 import { expect } from 'chai';
 
