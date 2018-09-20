@@ -99,6 +99,16 @@ export class HttpTestRecorder implements Middleware {
           .replace(LUIS_PATH, `/luis/v2.0/apps/${testAppId}`);
         req.scope = req.scope
           .replace(LUIS_HOST, `https://${testRegion}.api.cognitive.microsoft.com:443`);
+
+        // see nock/nock#1229
+        // nock is incorrectly identifying JSON requests with extra Content-Type directives as non-JSON
+        // e.g. Content-Type: application/json; charset=utf8
+        try {
+          JSON.parse(req.body);
+        } catch (err) {
+          // body was not valid JSON, stringify it
+          req.body = JSON.stringify(req.body);
+        }
         return req;
       });
     }
