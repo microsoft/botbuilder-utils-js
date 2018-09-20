@@ -11,7 +11,7 @@ const LUIS_PATH = /\/luis\/v2.0\/apps\/[^?]+/;
 const LUIS_QS_KEY = /subscription-key=[^&]+/;
 const AZURE_SEARCH_HOST = /^https:\/\/[^.]+\.search\.windows\.net:443/;
 const QNA_MAKER_HOST = /^https:\/\/[^.]+\.azurewebsites\.net:443/;
-const QNA_MAKER_PATH = /\/qnamaker\/knowledgebases\/[^?]+\/generateanswer/;
+const QNA_MAKER_PATH = /\/qnamaker\/knowledgebases\/[^\/]+\/generateanswer/;
 const SESSION_NAME = /rec:(?:end|stop):(.+)/;
 
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
@@ -118,7 +118,7 @@ export class HttpTestRecorder implements Middleware {
     if (Array.isArray(this.options.transformRequest)) {
       this.options.transformRequest.push((req: NockDefinition & { rawHeaders: string[] }) => {
         req.rawHeaders = req.rawHeaders
-          .filter((e) => !e.includes('ARRAffinity'));
+          .filter((e) => !e.includes('Set-Cookie') && !e.includes('ARRAffinity'));
         req.path = req.path
           .replace(QNA_MAKER_PATH, `/qnamaker/knowledgebases/${testKBId}/generateanswer`);
         req.scope = req.scope
