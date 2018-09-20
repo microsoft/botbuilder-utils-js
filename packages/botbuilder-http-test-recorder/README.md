@@ -129,11 +129,11 @@ constructor(options?: HttpTestRecorderOptions)
 
 * `options`: optional configuration parameters
 * `options.transformRequest` (`RequestTransformer[]`): stored requests/responses will be passed through these functions. use to remove secrets or change parts of the url or path
-* `options.requestFilter` (`RequestFilter[]`): only requests matching all of these filters will be stored
+* `options.requestFilter` (`RequestFilter[]`): only requests matching one or more of these filters will be stored
 
 > Learn more about [scope filtering](https://www.npmjs.com/package/nock#scope-filtering)
 >
-> If you are configuring a new external service, and you're not sure what to use for `requestFilter` or `transformRequest`, reference the implementation of [`captureLuis`](https://github.com/Microsoft/botbuilder-utils-js/blob/docs/readme/packages/botbuilder-http-test-recorder/src/index.ts#L88-L103)
+> If you are configuring a new external service, and you're not sure what to use for `requestFilter` or `transformRequest`, reference the implementation of [`captureLuis`](./src/index.ts#L88-L103)
 
 ```TypeScript
 captureLuis(testRegion = 'westus', testAppId = 'testAppId', testKey = 'testKey'): this
