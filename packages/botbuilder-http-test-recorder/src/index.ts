@@ -15,7 +15,7 @@ const LUIS_QS_KEY = /subscription-key=[^&]+/;
 const AZURE_SEARCH_HOST = /^https:\/\/[^.]+\.search\.windows\.net:443/;
 const QNA_MAKER_HOST = /^https:\/\/[^.]+\.azurewebsites\.net:443/;
 const QNA_MAKER_PATH = /\/qnamaker\/knowledgebases\/[^\/]+\/generateanswer/;
-const SESSION_NAME = /rec:(?:end|stop):(.+)/;
+const SESSION_NAME = /rec:(?:end|stop):(.+)/i;
 
 export type RequestTransformer = (request: NockDefinition) => NockDefinition;
 export type RequestFilter = (request: NockDefinition) => boolean;
@@ -68,6 +68,10 @@ export class HttpTestRecorder implements Middleware {
 
     // extract optional session name from the end directive
     const sessionName = this.extractSessionName(context);
+
+    if (context.activity.text != null) {
+       context.activity.text = context.activity.text.toLowerCase();
+    }
 
     // look for recording directives
     switch (context.activity.text) {
