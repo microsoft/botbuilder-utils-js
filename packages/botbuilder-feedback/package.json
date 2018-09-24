@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-feedback",
-  "version": "4.0.15",
+  "version": "4.2.2",
   "description": "Middleware for Microsoft Bot Framework to facilitate collection and logging of user feedback analytics",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -12,7 +12,6 @@
     "prepublishOnly": "npm --no-git-tag-version version patch"
   },
   "publishConfig": {
-    "tag": "preview",
     "registry": "https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/"
   },
   "repository": {
