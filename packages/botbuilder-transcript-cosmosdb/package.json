@@ -40,8 +40,8 @@
     "@types/documentdb": "^1.10.5",
     "@types/mocha": "^5.2.5",
     "@types/sinon": "^5.0.2",
-    "botbuilder-core": "^4.0.1-aicat1.5",
-    "botframework-schema": "^4.0.1-aicat1.3",
+    "botbuilder-core": "^4.0.6",
+    "botframework-schema": "^4.0.6",
     "chai": "^4.1.2",
     "documentdb": "^1.14.5",
     "mocha": "^5.2.0",
@@ -52,8 +52,8 @@
     "typescript": "^2.9.2"
   },
   "peerDependencies": {
-    "botbuilder-core": "^4.0.1-aicat1.5",
-    "botframework-schema": "^4.0.1-aicat1.3",
+    "botbuilder-core": "^4.0.6",
+    "botframework-schema": "^4.0.6",
     "documentdb": "^1.14.5"
   }
 }
