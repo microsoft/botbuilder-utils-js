@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import { TelemetryClient } from 'applicationinsights';
-import { PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
-import { Activity } from 'botframework-schema';
+import { Activity, PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
 
 import { AppInsightsReadClient } from './app-insights';
 import { deserialize, serialize, serializeMetadata, serializeProperties } from './serializer';

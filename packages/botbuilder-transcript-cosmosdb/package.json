@@ -1,6 +1,6 @@
 {
   "name": "botbuilder-transcript-cosmosdb",
-  "version": "4.0.13",
+  "version": "4.2.3",
   "description": "Plugin to store Microsoft Bot Framework transcript activities on Azure CosmosDb",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -11,10 +11,7 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm --no-git-tag-version version patch"
   },
-  "publishConfig": {
-    "tag": "preview",
-    "registry": "https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/"
-  },
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
@@ -40,8 +37,7 @@
     "@types/documentdb": "^1.10.5",
     "@types/mocha": "^5.2.5",
     "@types/sinon": "^5.0.2",
-    "botbuilder-core": "^4.0.1-aicat1.5",
-    "botframework-schema": "^4.0.1-aicat1.3",
+    "botbuilder-core": "^4.0.6",
     "chai": "^4.1.2",
     "documentdb": "^1.14.5",
     "mocha": "^5.2.0",
@@ -52,8 +48,8 @@
     "typescript": "^2.9.2"
   },
   "peerDependencies": {
-    "botbuilder-core": "^4.0.1-aicat1.5",
-    "botframework-schema": "^4.0.1-aicat1.3",
+    "botbuilder-core": "^4.0.6",
     "documentdb": "^1.14.5"
-  }
+  },
+  "dependencies": {}
 }

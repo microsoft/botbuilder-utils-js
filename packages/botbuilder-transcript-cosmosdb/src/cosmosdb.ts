@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-import { Collection, DocumentClient, DocumentQuery, FeedOptions, NewDocument, QueryError, RequestOptions, RetrievedDocument, UriFactory } from 'documentdb';
+import { Collection, DocumentClient, DocumentQuery, FeedOptions, NewDocument, QueryError, RequestOptions, RetrievedDocument } from 'documentdb';
 
 const HTTP_CONFLICT = 409;
 
