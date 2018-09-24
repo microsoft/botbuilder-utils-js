@@ -69,12 +69,10 @@ export class HttpTestRecorder implements Middleware {
     // extract optional session name from the end directive
     const sessionName = this.extractSessionName(context);
 
-    if (context.activity.text != null) {
-       context.activity.text = context.activity.text.toLowerCase();
-    }
+    const text = context.activity.text ? context.activity.text.toLowerCase() : context.activity.text;
 
     // look for recording directives
-    switch (context.activity.text) {
+    switch (text) {
       case 'rec:start':
         return this.startRecording(context);
       case 'rec:clear':
