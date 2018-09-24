@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-import { PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
-import { Activity } from 'botframework-schema';
-import { Collection, DocumentClient, IncludedPath } from 'documentdb';
+import { Activity, PagedResult, TranscriptInfo, TranscriptStore } from 'botbuilder-core';
+import { Collection, DocumentClient } from 'documentdb';
 
 import { createCollectionIfNotExists, createDatabaseIfNotExists, createDocument, deleteDocument, queryDocuments } from './cosmosdb';
 import { Initializer } from './initializer';
