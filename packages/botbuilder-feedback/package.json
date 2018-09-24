@@ -11,9 +11,7 @@
     "prepare": "npm run build",
     "prepublishOnly": "npm --no-git-tag-version version patch"
   },
-  "publishConfig": {
-    "registry": "https://msdata.pkgs.visualstudio.com/_packaging/botbuilder-utils/npm/registry/"
-  },
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
