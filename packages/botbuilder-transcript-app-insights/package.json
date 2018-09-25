@@ -1,0 +1,60 @@
+{
+  "name": "botbuilder-transcript-app-insights",
+  "version": "4.2.4",
+  "description": "Plugin to store Microsoft Bot Framework transcript activities in AppInsights",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register \"test/**/*.{ts,tsx}\"",
+    "pretest": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm --no-git-tag-version version patch"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/botbuilder-utils-js/issues"
+  },
+  "keywords": [
+    "botbuilder",
+    "botframework",
+    "bots",
+    "chatbots",
+    "logging",
+    "transcript",
+    "appinsights"
+  ],
+  "author": "Microsoft Corp.",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "@types/sinon": "^5.0.2",
+    "@types/superagent": "^3.8.4",
+    "applicationinsights": "^1.0.4",
+    "botbuilder-core": "^4.0.6",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "sinon": "^6.3.3",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  },
+  "peerDependencies": {
+    "applicationinsights": "^1.0.4",
+    "botbuilder-core": "^4.0.6"
+  },
+  "dependencies": {
+    "@types/lodash.camelcase": "^4.3.4",
+    "@types/lodash.get": "^4.4.4",
+    "@types/lodash.has": "^4.5.4",
+    "lodash.camelcase": "^4.3.0",
+    "lodash.get": "^4.4.2",
+    "lodash.has": "^4.5.2",
+    "superagent": "^3.8.3"
+  }
+}

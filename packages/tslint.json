@@ -1,0 +1,14 @@
+{
+  "extends": "tslint:recommended",
+  "rules": {
+    "member-access": [true, "no-public"],
+    "max-line-length": [true, 200],
+    "quotemark": [false],
+    "no-shadowed-variable": false,
+    "interface-name": [
+      false
+    ],
+    "object-literal-sort-keys": false,
+    "no-console": false
+  }
+}

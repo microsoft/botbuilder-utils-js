@@ -1,0 +1,55 @@
+{
+  "name": "botbuilder-transcript-cosmosdb",
+  "version": "4.2.3",
+  "description": "Plugin to store Microsoft Bot Framework transcript activities on Azure CosmosDb",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register \"test/**/*.{ts,tsx}\"",
+    "pretest": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm --no-git-tag-version version patch"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/botbuilder-utils-js/issues"
+  },
+  "keywords": [
+    "botbuilder",
+    "botframework",
+    "bots",
+    "chatbots",
+    "logging",
+    "transcript",
+    "documentdb",
+    "cosmosdb",
+    "nosql"
+  ],
+  "author": "Microsoft Corp.",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/documentdb": "^1.10.5",
+    "@types/mocha": "^5.2.5",
+    "@types/sinon": "^5.0.2",
+    "botbuilder-core": "^4.0.6",
+    "chai": "^4.1.2",
+    "documentdb": "^1.14.5",
+    "mocha": "^5.2.0",
+    "mocha-junit-reporter": "^1.18.0",
+    "sinon": "^6.3.3",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  },
+  "peerDependencies": {
+    "botbuilder-core": "^4.0.6",
+    "documentdb": "^1.14.5"
+  },
+  "dependencies": {}
+}

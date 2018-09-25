@@ -1,0 +1,51 @@
+{
+  "name": "botbuilder-http-test-recorder",
+  "version": "4.2.2",
+  "description": "Middleware for Microsoft Bot Framework to facilitate mocking of HTTP response when testing logic that relies on external services like LUIS",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --require ts-node/register \"test/**/*.{ts,tsx}\"",
+    "pretest": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm --no-git-tag-version version patch"
+  },
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/botbuilder-utils-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/botbuilder-utils-js/issues"
+  },
+  "keywords": [
+    "botbuilder",
+    "botframework",
+    "bots",
+    "chatbots",
+    "testing",
+    "mocks"
+  ],
+  "author": "Microsoft Corp.",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.5",
+    "botbuilder-core": "^4.0.6",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/nock": "^9.3.0",
+    "fs-extra": "^7.0.0",
+    "nock": "^9.6.1"
+  },
+  "peerDependencies": {
+    "botbuilder-core": "^4.0.6"
+  }
+}
