@@ -29,7 +29,7 @@ Because this package is supplied as sample code, it is not available on npm and 
 
 ```JavaScript
 const {
-  ActivityTypes, BotFrameworkAdapter, ConsoleTranscriptLogger,
+  ActivityTypes, AutoSaveStateMiddleware, BotFrameworkAdapter, ConsoleTranscriptLogger,
   ConversationState, MemoryStorage, TranscriptLoggerMiddleware } = require('botbuilder');
 const { Feedback } = require('botbuilder-feedback');
 
@@ -37,6 +37,7 @@ const { Feedback } = require('botbuilder-feedback');
 const logstore = new ConsoleTranscriptLogger(); // upgrade this to a persistent store like Cosmos DB or Appplication Insights
 const stateStorage = new MemoryStorage(); // only use MemoryStorage in dev
 const conversationState = new ConversationState(stateStorage);
+const autoSaveState = new AutoSaveStateMiddleware(conversationState);
 const feedback = new Feedback(conversationState);
 const logger = new TranscriptLoggerMiddleware(logstore);
 
@@ -44,7 +45,7 @@ const logger = new TranscriptLoggerMiddleware(logstore);
 const adapter = new BotFrameworkAdapter({
     appId: process.env.MICROSOFT_APP_ID,
     appPassword: process.env.MICROSOFT_APP_PASSWORD,
-  }).use(logger, conversationState, feedback);
+  }).use(logger, autoSaveState, feedback);
 
 // call for feedback in your bot logic
 const logic = async (context) => {
