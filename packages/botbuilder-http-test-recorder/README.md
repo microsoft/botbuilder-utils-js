@@ -2,6 +2,8 @@
 
 This directory contains sample code that can be used to build an HTTP recording mechanism, so that you can write effective unit tests for your bot. For example, if your bot logic relies on an external HTTP service like QnA Maker, botbuilder-http-test-recorder will help you record real responses during development so that they can be played back during unit testing without needing to make real network calls to external services.
 
+> It is advisable to regularly re-run captures against external services to ensure that your tests stay up to date. If you don't, your tests may not detect service changes that adversely affect your bot. Likewise, you should re-run captures whenever you upgrade any packages used by your bot.
+
 ## Prerequisites
 
 - A NodeJS bot using [Bot Framework v4](https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0)
