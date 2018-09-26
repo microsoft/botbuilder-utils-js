@@ -27,7 +27,7 @@ Because this package is supplied as sample code, it is not available on npm and 
 
 ### Recording HTTP traffic in the bot (Luis, Azure Search, and QnAMaker)
 
-This sample shows how to capture traffic from Luis, AzureSearch, and QnAMaker.
+This sample shows how to capture traffic from Luis, Azure Search, and QnAMaker.
 
 ```JavaScript
 const { BotFrameworkAdapter } = require('botbuilder');
