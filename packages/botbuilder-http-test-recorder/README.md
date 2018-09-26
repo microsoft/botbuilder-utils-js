@@ -25,7 +25,7 @@ Because this package is supplied as sample code, it is not available on npm and 
 
 > JavaScript examples are shown below, but this package also works great in TypeScript projects.
 
-### Recording HTTP traffic in the bot (Luis, Azure, and QnAMaker)
+### Recording HTTP traffic in the bot (Luis, AzureSearch, and QnAMaker)
 
 This sample shows how to capture traffic from Luis, AzureSearch, and QnAMaker.
 
