@@ -62,7 +62,6 @@ export interface FeedbackRecord {
 }
 
 export type FeedbackAction = string | CardAction;
-// export type ContextWithFeedback = TurnContext & FeedbackContext;
 
 /** Middleware that managegs user feedback prompts, and stores responses in the transcript log */
 export class Feedback implements Middleware {
