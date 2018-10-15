@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-import { Activity, ActivityTypes, CardAction, ConversationState, MessageFactory, Middleware, StoreItem, TurnContext } from 'botbuilder-core';
+import {
+  Activity, ActivityTypes, CardAction, ConversationState,
+  MessageFactory, Middleware, StatePropertyAccessor, TurnContext,
+} from 'botbuilder-core';
 
 const DEFAULT_FEEDBACK_ACTIONS = ['👍 good answer', '👎 bad answer'];
 const DEFAULT_FEEDBACK_RESPONSE = 'Thanks for your feedback!';
@@ -12,19 +15,13 @@ const TRACE_TYPE = 'https://www.example.org/schemas/feedback/trace';
 const TRACE_NAME = 'Feedback';
 const TRACE_LABEL = 'User Feedback';
 
-export type Message = string | { text: string, speak?: string };
-
 const feedbackAction = (action: FeedbackAction) => typeof action === 'string' ? action : feedbackValue(action);
 const feedbackValue = (activity: { text?: string, value?: any }) => activity.value || activity.text;
 
-/** StoreItem to track feedback state */
-export interface FeedbackState extends StoreItem {
-  feedback: FeedbackRecord;
-}
-
-export interface FeedbackContext {
-  feedback: FeedbackOptions & { conversationState: ConversationState };
-}
+export const FEEDBACK_CONVERSATION_STATE = 'State.Conversation.Feedback';
+export const FEEDBACK_TURN_STATE_SETTINGS = Symbol('TurnContext.Feedback.Settings');
+export const FEEDBACK_TURN_STATE_RECORD = Symbol('TurnContext.Feedback.Record');
+export type Message = string | { text: string, speak?: string };
 
 /** Options for Feedback Middleware */
 export interface FeedbackOptions {
@@ -65,7 +62,7 @@ export interface FeedbackRecord {
 }
 
 export type FeedbackAction = string | CardAction;
-export type ContextWithFeedback = TurnContext & FeedbackContext;
+// export type ContextWithFeedback = TurnContext & FeedbackContext;
 
 /** Middleware that managegs user feedback prompts, and stores responses in the transcript log */
 export class Feedback implements Middleware {
@@ -78,18 +75,20 @@ export class Feedback implements Middleware {
    * @param tag optional tag so that feedback responses can be grouped for analytics purposes
    */
   static createFeedbackMessage(context: TurnContext, textOrActivity: string|Partial<Activity>, tag?: string): Partial<Activity> {
-    const feedbackContext = context as ContextWithFeedback;
-    const state = feedbackContext.feedback.conversationState.get(context) as StoreItem & FeedbackState; // TODO SDK Feedback: get() should be generic
-    const actions = feedbackContext.feedback.feedbackActions.concat(feedbackContext.feedback.dismissAction)
+    const options: FeedbackOptions = context.turnState.get(FEEDBACK_TURN_STATE_SETTINGS);
+    const actions = options.feedbackActions.concat(options.dismissAction)
       .filter((x) => !!x);
 
-    state.feedback = { // this should be put on the context object. onTurn should move it from context to state after await next()
+    // Store a preliminary feedback record on the turn state.
+    // This will be moved to user state when the turn completes
+    const feedbackRecord: FeedbackRecord = {
       tag,
       request: context.activity,
       response: typeof textOrActivity === 'string' ? textOrActivity : feedbackValue(textOrActivity),
       feedback: null,
       comments: null,
     };
+    context.turnState.set(FEEDBACK_TURN_STATE_RECORD, feedbackRecord);
 
     if (typeof textOrActivity === 'string') {
       const text = textOrActivity;
@@ -118,13 +117,16 @@ export class Feedback implements Middleware {
     return context.sendActivity(message);
   }
 
+  private state: StatePropertyAccessor<FeedbackRecord>;
+
   /**
    * Create a new Feedback middleware instance
-   * @param conversationState The instance of `ConversationState` used by your bot
+   * @param conversationState `ConversationState` instance used by your bot
    * @param options Optional configuration parameters for the feedback middleware
    */
-  constructor(private conversationState: ConversationState, private options?: FeedbackOptions) {
+  constructor(conversationState: ConversationState, private options?: FeedbackOptions) {
     this.options = options || {};
+    this.state = conversationState.createProperty(FEEDBACK_CONVERSATION_STATE);
     if (!this.options.feedbackActions) {
       this.options.feedbackActions = DEFAULT_FEEDBACK_ACTIONS;
     }
@@ -142,14 +144,15 @@ export class Feedback implements Middleware {
     }
   }
 
-  async onTurn(context: ContextWithFeedback, next: () => Promise<void>): Promise<void> {
+  async onTurn(context: TurnContext, next: () => Promise<void>): Promise<void> {
 
-    // store feedback options on the context object so that they can be used downstream by user-invoked `requestFeedback()`
-    context.feedback = Object.assign({}, this.options, { conversationState: this.conversationState });
+    // store feedback options for this turn so that they it be used downstream by this class's static methods
+    context.turnState.set(FEEDBACK_TURN_STATE_SETTINGS, this.options);
 
+    // load conversation state for user
     const record = await this.getFeedbackState(context);
 
-    // feedback is pending
+    // feedback is pending, intercept the user's response
     if (record) {
       const canGiveComments = this.userCanGiveComments(context);
 
@@ -173,30 +176,33 @@ export class Feedback implements Middleware {
 
       // user did not provide feedback: clear record and continue
       } else {
-        this.clearFeedbackState(context);
+        await this.clearFeedbackState(context);
         if (!this.userDismissed(context)) {
           return next();
         }
       }
 
-    // no pending feedback, or user did not provide feedback
+    // no stored feedback
     } else {
-      return next();
+
+      // check for feedback created on this turn
+      await next();
+      const pendingFeedback = context.turnState.get(FEEDBACK_TURN_STATE_RECORD);
+
+      // move pending feedback to the conversation state
+      if (pendingFeedback) {
+        context.turnState.delete(FEEDBACK_TURN_STATE_RECORD);
+        await this.state.set(context, pendingFeedback);
+      }
     }
   }
 
-  private async getFeedbackState(context: ContextWithFeedback): Promise<FeedbackRecord> {
-    const state = await this.conversationState.load(context);
-    if (!state) {
-      throw new Error('Feedback middleware cannot find a BotState instance. Make sure that your ConversationState middleware is added to your bot before Feedback');
-    }
-
-    return state.feedback;
+  private async getFeedbackState(context: TurnContext): Promise<FeedbackRecord> {
+    return this.state.get(context);
   }
 
-  private clearFeedbackState(context: ContextWithFeedback): void {
-    const state = this.conversationState.get(context);
-    delete state.feedback;
+  private clearFeedbackState(context: TurnContext) {
+    return this.state.delete(context);
   }
 
   private sendMessage(context: TurnContext, message: Message) {
@@ -207,9 +213,9 @@ export class Feedback implements Middleware {
     }
   }
 
-  private async storeFeedback(context: ContextWithFeedback) {
+  private async storeFeedback(context: TurnContext) {
     const record = await this.getFeedbackState(context);
-    this.clearFeedbackState(context);
+    await this.clearFeedbackState(context);
     await context.sendActivity({
       type: ActivityTypes.Trace,
       valueType: TRACE_TYPE,
@@ -224,17 +230,17 @@ export class Feedback implements Middleware {
     }
   }
 
-  private userCanGiveComments(context: ContextWithFeedback) {
+  private userCanGiveComments(context: TurnContext) {
     return this.options.promptFreeForm === true || (Array.isArray(this.options.promptFreeForm) && this.options.promptFreeForm
       .some((x) => x === feedbackValue(context.activity)));
   }
 
-  private userGaveFeedback(context: ContextWithFeedback) {
+  private userGaveFeedback(context: TurnContext) {
     return !this.userDismissed(context) && this.options.feedbackActions
       .some((x) => feedbackAction(x) === feedbackValue(context.activity));
   }
 
-  private userDismissed(context: ContextWithFeedback) {
+  private userDismissed(context: TurnContext) {
     return feedbackValue(context.activity) === feedbackAction(this.options.dismissAction);
   }
 }
